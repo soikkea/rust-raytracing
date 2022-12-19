@@ -1,5 +1,12 @@
 use std::io::{self, Write};
+
 use std::time::Instant;
+
+use crate::color::write_color;
+use crate::vec3::Color;
+
+pub mod color;
+pub mod vec3;
 
 fn main() {
     // Image
@@ -16,15 +23,12 @@ fn main() {
         eprint!("\rScanlines remaining: {j} ");
         io::stderr().flush().unwrap();
         for i in 0..IMAGE_WIDTH {
-            let r = (i as f64) / (IMAGE_WIDTH - 1) as f64;
-            let g = (j as f64) / (IMAGE_HEIGHT - 1) as f64;
-            let b = 0.25;
-
-            let ir = (255.999 * r) as u32;
-            let ig = (255.999 * g) as u32;
-            let ib = (255.999 * b) as u32;
-
-            println!("{ir} {ig} {ib}");
+            let pixel_color = Color::new(
+                i as f64 / (IMAGE_WIDTH - 1) as f64,
+                j as f64 / (IMAGE_HEIGHT - 1) as f64,
+                0.25,
+            );
+            write_color(&mut io::stdout().lock(), pixel_color).unwrap();
         }
     }
 
