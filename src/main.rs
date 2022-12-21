@@ -9,7 +9,7 @@ pub mod ray;
 pub mod vec3;
 
 fn ray_color(ray: &ray::Ray) -> vec3::Color {
-    let unit_direction = vec3::Vec3::unit_vector(*ray.direction());
+    let unit_direction = vec3::Vec3::unit_vector(ray.direction());
     let t = 0.5 * (unit_direction.y() + 1.0);
     (1.0 - t) * vec3::Color::new(1.0, 1.0, 1.0) + t * vec3::Color::new(0.5, 0.7, 1.0)
 }
@@ -26,11 +26,11 @@ fn main() {
     let viewport_width = ASPECT_RATIO * viewport_height;
     let focal_length = 1.0;
 
-    let origin = vec3::Point3::new(0.0, 0.0, 0.0);
-    let horizontal = vec3::Vec3::new(viewport_width, 0.0, 0.0);
-    let vertical = vec3::Vec3::new(0.0, viewport_height, 0.0);
+    let origin = &vec3::Point3::new(0.0, 0.0, 0.0);
+    let horizontal = &vec3::Vec3::new(viewport_width, 0.0, 0.0);
+    let vertical = &vec3::Vec3::new(0.0, viewport_height, 0.0);
     let lower_left_corner =
-        origin - horizontal / 2.0 - vertical / 2.0 - vec3::Vec3::new(0.0, 0.0, focal_length);
+        &(origin - horizontal / 2.0 - vertical / 2.0 - vec3::Vec3::new(0.0, 0.0, focal_length));
 
     // Render
 
@@ -44,7 +44,8 @@ fn main() {
         for i in 0..IMAGE_WIDTH {
             let u = i as f64 / (IMAGE_WIDTH - 1) as f64;
             let v = j as f64 / (IMAGE_HEIGHT - 1) as f64;
-            let ray = ray::Ray::new(origin, lower_left_corner + u*horizontal + v*vertical - origin);
+            let direction: vec3::Vec3 = lower_left_corner + u * horizontal + v * vertical - origin;
+            let ray = ray::Ray::new(origin, &direction);
             let pixel_color = ray_color(&ray);
             write_color(&mut io::stdout().lock(), pixel_color).unwrap();
         }

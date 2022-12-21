@@ -1,6 +1,6 @@
 use std::ops;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug)]
 pub struct Vec3 {
     pub e: [f64; 3],
 }
@@ -14,7 +14,7 @@ impl Vec3 {
         Vec3 { e: [e0, e1, e2] }
     }
 
-    pub fn unit_vector(v: Vec3) -> Vec3 {
+    pub fn unit_vector(v: &Vec3) -> Vec3 {
         v / v.length()
     }
 
@@ -51,6 +51,18 @@ impl ops::Add for Vec3 {
     }
 }
 
+impl ops::Add<Vec3> for &Vec3 {
+    type Output = Vec3;
+
+    fn add(self, rhs: Vec3) -> Self::Output {
+        Vec3::new(
+            self.e[0] + rhs.e[0],
+            self.e[1] + rhs.e[1],
+            self.e[2] + rhs.e[2],
+        )
+    }
+}
+
 impl ops::Sub for Vec3 {
     type Output = Vec3;
 
@@ -63,23 +75,47 @@ impl ops::Sub for Vec3 {
     }
 }
 
+impl ops::Sub<&Vec3> for Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, rhs: &Vec3) -> Self::Output {
+        Vec3::new(
+            self.e[0] - rhs.e[0],
+            self.e[1] - rhs.e[1],
+            self.e[2] - rhs.e[2],
+        )
+    }
+}
+
+impl ops::Sub<Vec3> for &Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, rhs: Vec3) -> Self::Output {
+        Vec3::new(
+            self.e[0] - rhs.e[0],
+            self.e[1] - rhs.e[1],
+            self.e[2] - rhs.e[2],
+        )
+    }
+}
+
 impl ops::Mul<Vec3> for f64 {
     type Output = Vec3;
 
     fn mul(self, rhs: Vec3) -> Self::Output {
-        rhs * self
+        Vec3::new(rhs.e[0] * self, rhs.e[1] * self, rhs.e[2] * self)
     }
 }
 
-impl ops::Mul<f64> for Vec3 {
+impl ops::Mul<&Vec3> for f64 {
     type Output = Vec3;
 
-    fn mul(self, rhs: f64) -> Self::Output {
-        Vec3::new(self.e[0] * rhs, self.e[1] * rhs, self.e[2] * rhs)
+    fn mul(self, rhs: &Vec3) -> Self::Output {
+        Vec3::new(rhs.e[0] * self, rhs.e[1] * self, rhs.e[2] * self)
     }
 }
 
-impl ops::Div<f64> for Vec3 {
+impl ops::Div<f64> for &Vec3 {
     type Output = Vec3;
 
     fn div(self, rhs: f64) -> Self::Output {
