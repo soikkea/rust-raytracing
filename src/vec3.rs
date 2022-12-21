@@ -39,7 +39,21 @@ impl Vec3 {
     }
 }
 
-impl ops::Add for Vec3 {
+pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
+    u.e[0] * v.e[0] +
+    u.e[1] * v.e[1] +
+    u.e[2] * v.e[2]
+}
+
+pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
+    Vec3::new(
+        u.e[1] * v.e[2] - u.e[2] * v.e[1],
+        u.e[2] * v.e[0] - u.e[0] * v.e[2],
+        u.e[0] * v.e[1] - u.e[1] * v.e[0],
+    )
+}
+
+impl ops::Add for &Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -51,19 +65,23 @@ impl ops::Add for Vec3 {
     }
 }
 
+impl ops::Add for Vec3 {
+    type Output = Vec3;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        &self + &rhs
+    }
+}
+
 impl ops::Add<Vec3> for &Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Vec3) -> Self::Output {
-        Vec3::new(
-            self.e[0] + rhs.e[0],
-            self.e[1] + rhs.e[1],
-            self.e[2] + rhs.e[2],
-        )
+        self + &rhs
     }
 }
 
-impl ops::Sub for Vec3 {
+impl ops::Sub for &Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -75,15 +93,19 @@ impl ops::Sub for Vec3 {
     }
 }
 
+impl ops::Sub for Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        &self - rhs
+    }
+}
+
 impl ops::Sub<&Vec3> for Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: &Vec3) -> Self::Output {
-        Vec3::new(
-            self.e[0] - rhs.e[0],
-            self.e[1] - rhs.e[1],
-            self.e[2] - rhs.e[2],
-        )
+        &self - rhs
     }
 }
 
@@ -91,11 +113,7 @@ impl ops::Sub<Vec3> for &Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: Vec3) -> Self::Output {
-        Vec3::new(
-            self.e[0] - rhs.e[0],
-            self.e[1] - rhs.e[1],
-            self.e[2] - rhs.e[2],
-        )
+        self - &rhs
     }
 }
 
