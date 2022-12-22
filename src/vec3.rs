@@ -1,6 +1,6 @@
 use std::ops;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
     pub e: [f64; 3],
 }
@@ -136,6 +136,14 @@ impl ops::Div<f64> for &Vec3 {
 
     fn div(self, rhs: f64) -> Self::Output {
         (1.0 / rhs) * self
+    }
+}
+
+impl ops::Neg for &Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Self::Output {
+        Vec3::new(-self.e[0], -self.e[1], -self.e[2])
     }
 }
 
