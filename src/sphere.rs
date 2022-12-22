@@ -6,10 +6,10 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: &vec3::Point3, radius: f64) -> Sphere {
+    pub fn new(center: vec3::Point3, radius: f64) -> Sphere {
         Sphere {
-            center: (vec3::Vec3 { e: center.e }),
-            radius: (radius),
+            center: center,
+            radius: radius,
         }
     }
 }

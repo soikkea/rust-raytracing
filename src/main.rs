@@ -5,10 +5,11 @@ use std::time::Instant;
 use crate::color::write_color;
 
 pub mod color;
-pub mod ray;
-pub mod vec3;
 pub mod hittable;
+pub mod hittable_list;
+pub mod ray;
 pub mod sphere;
+pub mod vec3;
 
 fn hit_sphere(center: &vec3::Point3, radius: f64, ray: &ray::Ray) -> f64 {
     let oc = ray.origin() - center;
@@ -23,11 +24,10 @@ fn hit_sphere(center: &vec3::Point3, radius: f64, ray: &ray::Ray) -> f64 {
     }
 }
 
-fn ray_color(ray: &ray::Ray) -> vec3::Color {
-    let t = hit_sphere(&vec3::Point3::new(0.0, 0.0, -1.0), 0.5, ray);
-    if t > 0.0 {
-        let n = vec3::unit_vector(&(&ray.at(t) - &vec3::Vec3::new(0.0, 0.0, -1.0)));
-        return 0.5 * vec3::Color::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0);
+fn ray_color(ray: &ray::Ray, world: &dyn hittable::Hittable) -> vec3::Color {
+    let mut hit_record = hittable::HitRecord::new();
+    if world.hit(ray, 0.0, f64::INFINITY, &mut hit_record) {
+        return 0.5 * (hit_record.normal() + vec3::Color::new(1.0, 1.0, 1.0));
     }
     let unit_direction = vec3::unit_vector(ray.direction());
     let t = 0.5 * (unit_direction.y() + 1.0);
@@ -39,6 +39,17 @@ fn main() {
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const IMAGE_WIDTH: u32 = 400;
     const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
+
+    // World
+    let mut world = hittable_list::HittableList::new();
+    world.add(Box::new(sphere::Sphere::new(
+        vec3::Point3::new(0.0, 0.0, -1.0),
+        0.5,
+    )));
+    world.add(Box::new(sphere::Sphere::new(
+        vec3::Point3::new(0.0, -100.5, -1.0),
+        100.0,
+    )));
 
     // Camera
 
@@ -66,7 +77,7 @@ fn main() {
             let v = j as f64 / (IMAGE_HEIGHT - 1) as f64;
             let direction: vec3::Vec3 = lower_left_corner + u * horizontal + v * vertical - origin;
             let ray = ray::Ray::new(origin, &direction);
-            let pixel_color = ray_color(&ray);
+            let pixel_color = ray_color(&ray, &world);
             write_color(&mut io::stdout().lock(), pixel_color).unwrap();
         }
     }
