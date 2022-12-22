@@ -7,6 +7,8 @@ use crate::color::write_color;
 pub mod color;
 pub mod ray;
 pub mod vec3;
+pub mod hittable;
+pub mod sphere;
 
 fn hit_sphere(center: &vec3::Point3, radius: f64, ray: &ray::Ray) -> f64 {
     let oc = ray.origin() - center;
