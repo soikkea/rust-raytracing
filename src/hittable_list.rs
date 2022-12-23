@@ -1,4 +1,4 @@
-use crate::hittable;
+use crate::hittable::{self, HitRecord};
 
 pub struct HittableList {
     pub objects: Vec<Box<dyn hittable::Hittable>>,
@@ -22,20 +22,18 @@ impl hittable::Hittable for HittableList {
         _ray: &crate::ray::Ray,
         _t_min: f64,
         _t_max: f64,
-        _rec: &mut hittable::HitRecord,
-    ) -> bool {
-        let mut temp_rec = hittable::HitRecord::new();
-        let mut hit_anything = false;
+    ) -> Option<hittable::HitRecord> {
+        let mut result: Option<HitRecord> = None;
         let mut closest_so_far = _t_max;
 
         for object in &self.objects {
-            if object.hit(_ray, _t_min, closest_so_far, &mut temp_rec) {
-                hit_anything = true;
-                closest_so_far = temp_rec.t();
-                _rec.clone_from(&temp_rec);
+            let object_hit_result = object.hit(_ray, _t_min, closest_so_far);
+            if object_hit_result.is_some() {
+                closest_so_far = object_hit_result.unwrap().t();
+                result = object_hit_result;
             }
         }
 
-        hit_anything
+        result
     }
 }

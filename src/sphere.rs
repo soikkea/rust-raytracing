@@ -1,4 +1,4 @@
-use crate::{hittable::Hittable, vec3};
+use crate::{hittable, vec3};
 
 pub struct Sphere {
     pub center: vec3::Point3,
@@ -14,14 +14,8 @@ impl Sphere {
     }
 }
 
-impl Hittable for Sphere {
-    fn hit(
-        &self,
-        ray: &crate::ray::Ray,
-        t_min: f64,
-        t_max: f64,
-        rec: &mut crate::hittable::HitRecord,
-    ) -> bool {
+impl hittable::Hittable for Sphere {
+    fn hit(&self, ray: &crate::ray::Ray, t_min: f64, t_max: f64) -> Option<hittable::HitRecord> {
         let oc = ray.origin() - &self.center;
         let a = ray.direction().length_squared();
         let half_b = vec3::dot(&oc, ray.direction());
@@ -29,7 +23,7 @@ impl Hittable for Sphere {
 
         let discriminant = half_b * half_b - a * c;
         if discriminant < 0.0 {
-            return false;
+            return None;
         }
         let sqrt_d = discriminant.sqrt();
 
@@ -37,15 +31,14 @@ impl Hittable for Sphere {
         if root < t_min || t_max < root {
             root = (-half_b + sqrt_d) / a;
             if root < t_min || t_max < root {
-                return false;
+                return None;
             }
         }
 
-        rec.t = root;
-        rec.p = ray.at(rec.t);
-        let outward_normal = &(rec.p - self.center) / self.radius;
-        rec.set_face_normal(ray, &outward_normal);
+        let p = ray.at(root);
+        let outward_normal = &(p - self.center) / self.radius;
+        let rec = hittable::HitRecord::new(p, root, ray, &outward_normal);
 
-        true
+        Option::Some(rec)
     }
 }

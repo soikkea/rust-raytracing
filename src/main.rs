@@ -11,22 +11,10 @@ pub mod ray;
 pub mod sphere;
 pub mod vec3;
 
-fn hit_sphere(center: &vec3::Point3, radius: f64, ray: &ray::Ray) -> f64 {
-    let oc = ray.origin() - center;
-    let a = ray.direction().length_squared();
-    let half_b = vec3::dot(&oc, ray.direction());
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = half_b * half_b - a * c;
-    if discriminant < 0.0 {
-        -1.0
-    } else {
-        (-half_b - discriminant.sqrt()) / (a)
-    }
-}
-
 fn ray_color(ray: &ray::Ray, world: &dyn hittable::Hittable) -> vec3::Color {
-    let mut hit_record = hittable::HitRecord::new();
-    if world.hit(ray, 0.0, f64::INFINITY, &mut hit_record) {
+    let hit = world.hit(ray, 0.0, f64::INFINITY);
+    if hit.is_some() {
+        let hit_record = hit.unwrap();
         return 0.5 * (hit_record.normal() + vec3::Color::new(1.0, 1.0, 1.0));
     }
     let unit_direction = vec3::unit_vector(ray.direction());
