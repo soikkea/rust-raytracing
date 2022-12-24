@@ -24,6 +24,22 @@ impl HitRecord {
         }
     }
 
+    pub fn empty() -> HitRecord {
+        HitRecord {
+            p: vec3::Point3::origin(),
+            normal: vec3::Vec3::origin(),
+            t: 0.0,
+            front_face: false,
+        }
+    }
+
+    pub fn copy_from(&mut self, other: &HitRecord) {
+        self.p = other.p;
+        self.normal = other.normal;
+        self.t = other.t;
+        self.front_face = other.front_face;
+    }
+
     pub fn t(&self) -> f64 {
         self.t
     }
@@ -43,7 +59,7 @@ impl HitRecord {
 }
 
 pub trait Hittable {
-    fn hit(&self, _ray: &ray::Ray, _t_min: f64, _t_max: f64) -> Option<HitRecord> {
-        None
+    fn hit(&self, _ray: &ray::Ray, _t_min: f64, _t_max: f64, _rec: &mut HitRecord) -> bool {
+        false
     }
 }

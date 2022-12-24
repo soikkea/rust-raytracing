@@ -19,10 +19,9 @@ fn ray_color(ray: &ray::Ray, world: &dyn hittable::Hittable, depth: i32) -> vec3
         return vec3::Color::new(0.0, 0.0, 0.0);
     }
 
-    let hit = world.hit(ray, 0.0, f64::INFINITY);
+    let mut hit_record = hittable::HitRecord::empty();
 
-    if hit.is_some() {
-        let hit_record = hit.unwrap();
+    if world.hit(ray, 0.0, f64::INFINITY, &mut hit_record) {
         let target = &hit_record.p + &hit_record.normal + vec3::random_in_unit_sphere();
         let direction = target - &hit_record.p;
         return 0.5 * ray_color(&ray::Ray::new(&hit_record.p, &direction), world, depth - 1);

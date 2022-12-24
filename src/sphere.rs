@@ -15,7 +15,13 @@ impl Sphere {
 }
 
 impl hittable::Hittable for Sphere {
-    fn hit(&self, ray: &crate::ray::Ray, t_min: f64, t_max: f64) -> Option<hittable::HitRecord> {
+    fn hit(
+        &self,
+        ray: &crate::ray::Ray,
+        t_min: f64,
+        t_max: f64,
+        _rec: &mut hittable::HitRecord,
+    ) -> bool {
         let oc = ray.origin() - &self.center;
         let a = ray.direction().length_squared();
         let half_b = vec3::dot(&oc, ray.direction());
@@ -23,7 +29,7 @@ impl hittable::Hittable for Sphere {
 
         let discriminant = half_b * half_b - a * c;
         if discriminant < 0.0 {
-            return None;
+            return false;
         }
         let sqrt_d = discriminant.sqrt();
 
@@ -31,14 +37,16 @@ impl hittable::Hittable for Sphere {
         if root < t_min || t_max < root {
             root = (-half_b + sqrt_d) / a;
             if root < t_min || t_max < root {
-                return None;
+                return false;
             }
         }
 
         let p = ray.at(root);
         let outward_normal = &(p - self.center) / self.radius;
-        let rec = hittable::HitRecord::new(p, root, ray, &outward_normal);
+        _rec.t = root;
+        _rec.p = p;
+        _rec.set_face_normal(ray, &outward_normal);
 
-        Option::Some(rec)
+        true
     }
 }
