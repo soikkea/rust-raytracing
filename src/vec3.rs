@@ -1,5 +1,7 @@
 use std::ops;
 
+use rand::Rng;
+
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
     pub e: [f64; 3],
@@ -12,6 +14,20 @@ impl Vec3 {
 
     pub fn new(e0: f64, e1: f64, e2: f64) -> Vec3 {
         Vec3 { e: [e0, e1, e2] }
+    }
+
+    pub fn random() -> Vec3 {
+        let mut rng = rand::thread_rng();
+        Vec3::new(rng.gen(), rng.gen(), rng.gen())
+    }
+
+    pub fn random_range(min: f64, max: f64) -> Vec3 {
+        let mut rng = rand::thread_rng();
+        Vec3::new(
+            rng.gen_range(min..max),
+            rng.gen_range(min..max),
+            rng.gen_range(min..max),
+        )
     }
 
     pub fn x(&self) -> f64 {
@@ -49,6 +65,15 @@ pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
         u.e[2] * v.e[0] - u.e[0] * v.e[2],
         u.e[0] * v.e[1] - u.e[1] * v.e[0],
     )
+}
+
+pub fn random_in_unit_sphere() -> Vec3 {
+    loop {
+        let p = Vec3::random_range(-1.0, 1.0);
+        if p.length_squared() < 1.0 {
+            return p;
+        }
+    }
 }
 
 impl ops::Add for &Vec3 {
@@ -149,13 +174,9 @@ impl ops::Neg for &Vec3 {
 
 impl ops::AddAssign for Vec3 {
     fn add_assign(&mut self, other: Self) {
-        *self = Self {
-            e: [
-                self.x() + other.x(),
-                self.y() + other.y(),
-                self.z() + other.z(),
-            ],
-        }
+        self.e[0] += other.e[0];
+        self.e[1] += other.e[1];
+        self.e[2] += other.e[2];
     }
 }
 
