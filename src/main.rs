@@ -3,6 +3,7 @@ use std::io::{self, Write};
 use std::time::Instant;
 
 use rand::Rng;
+use vec3::random_in_hemisphere;
 
 use crate::color::write_color;
 
@@ -21,8 +22,8 @@ fn ray_color(ray: &ray::Ray, world: &dyn hittable::Hittable, depth: i32) -> vec3
 
     let mut hit_record = hittable::HitRecord::empty();
 
-    if world.hit(ray, 0.0, f64::INFINITY, &mut hit_record) {
-        let target = &hit_record.p + &hit_record.normal + vec3::random_in_unit_sphere();
+    if world.hit(ray, 0.001, f64::INFINITY, &mut hit_record) {
+        let target = &hit_record.p + random_in_hemisphere(&hit_record.normal);
         let direction = target - &hit_record.p;
         return 0.5 * ray_color(&ray::Ray::new(&hit_record.p, &direction), world, depth - 1);
     }
