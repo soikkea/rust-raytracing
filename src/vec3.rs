@@ -49,6 +49,11 @@ impl Vec3 {
     pub fn length_squared(&self) -> f64 {
         return self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2];
     }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        (self.e[0].abs() < s) && (self.e[1].abs() < s) && (self.e[2].abs() < s)
+    }
 }
 
 pub fn unit_vector(v: &Vec3) -> Vec3 {
@@ -87,6 +92,10 @@ pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
     } else {
         -&in_unit_sphere
     }
+}
+
+pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
+    v - 2.0 * dot(v, n) * n
 }
 
 impl ops::Add for &Vec3 {
@@ -150,6 +159,18 @@ impl ops::Sub<Vec3> for &Vec3 {
 
     fn sub(self, rhs: Vec3) -> Self::Output {
         self - &rhs
+    }
+}
+
+impl ops::Mul for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Vec3::new(
+            self.e[0] * rhs.e[0],
+            self.e[1] * rhs.e[1],
+            self.e[2] * rhs.e[2],
+        )
     }
 }
 

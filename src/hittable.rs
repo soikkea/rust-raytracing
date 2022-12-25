@@ -1,9 +1,11 @@
-use crate::{ray, vec3};
+use std::rc::Rc;
 
-#[derive(Debug)]
+use crate::{material, ray, vec3};
+
 pub struct HitRecord {
     pub p: vec3::Point3,
     pub normal: vec3::Vec3,
+    pub material: Option<Rc<dyn material::Material>>,
     pub t: f64,
     pub front_face: bool,
 }
@@ -19,6 +21,7 @@ impl HitRecord {
         HitRecord {
             p,
             normal,
+            material: None,
             t,
             front_face,
         }
@@ -28,6 +31,7 @@ impl HitRecord {
         HitRecord {
             p: vec3::Point3::origin(),
             normal: vec3::Vec3::origin(),
+            material: None,
             t: 0.0,
             front_face: false,
         }
@@ -36,6 +40,10 @@ impl HitRecord {
     pub fn copy_from(&mut self, other: &HitRecord) {
         self.p = other.p;
         self.normal = other.normal;
+        match &other.material {
+            Some(material) => self.material = Option::Some(Rc::clone(&material)),
+            None => self.material = Option::None,
+        }
         self.t = other.t;
         self.front_face = other.front_face;
     }

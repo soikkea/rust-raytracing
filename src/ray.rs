@@ -9,8 +9,15 @@ pub struct Ray {
 impl Ray {
     pub fn new(origin: &vec3::Point3, direction: &vec3::Vec3) -> Ray {
         Ray {
-            orig: vec3::Point3{ e: origin.e },
-            dir: vec3::Point3{ e: direction.e },
+            orig: vec3::Point3 { e: origin.e },
+            dir: vec3::Point3 { e: direction.e },
+        }
+    }
+
+    pub fn empty() -> Ray {
+        Ray {
+            orig: vec3::Point3::origin(),
+            dir: vec3::Point3::origin(),
         }
     }
 
