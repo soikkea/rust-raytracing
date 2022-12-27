@@ -85,12 +85,20 @@ fn main() {
 
     // Camera
 
+    let look_from = vec3::Point3::new(3.0, 3.0, 2.0);
+    let look_at = vec3::Point3::new(0.0, 0.0, -1.0);
+    let v_up = vec3::Vec3::new(0.0, 1.0, 0.0);
+    let dist_to_focus = (look_from - look_at).length();
+    let aperture = 2.0;
+
     let camera = camera::Camera::new(
-        vec3::Point3::new(-2.0, 2.0, 1.0),
-        vec3::Point3::new(0.0, 0.0, -1.0),
-        vec3::Vec3::new(0.0, 1.0, 0.0),
+        look_from,
+        look_at,
+        v_up,
         20.0,
         ASPECT_RATIO,
+        aperture,
+        dist_to_focus,
     );
 
     // Render

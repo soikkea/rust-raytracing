@@ -94,6 +94,16 @@ pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
     }
 }
 
+pub fn random_in_unit_disk() -> Vec3 {
+    let mut rng = rand::thread_rng();
+    loop {
+        let p = Vec3::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0), 0.0);
+        if p.length_squared() < 1.0 {
+            return p;
+        }
+    }
+}
+
 pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
     v - 2.0 * dot(v, n) * n
 }
@@ -194,6 +204,14 @@ impl ops::Mul<&Vec3> for f64 {
 
     fn mul(self, rhs: &Vec3) -> Self::Output {
         Vec3::new(rhs.e[0] * self, rhs.e[1] * self, rhs.e[2] * self)
+    }
+}
+
+impl ops::Mul<f64> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        rhs * self
     }
 }
 
