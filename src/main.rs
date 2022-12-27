@@ -45,6 +45,8 @@ fn main() {
     const MAX_DEPTH: i32 = 50;
 
     // World
+
+    let R = (std::f64::consts::PI / 4.0).cos();
     let mut world = hittable_list::HittableList::new();
 
     let material_ground: Rc<dyn material::Material> =
@@ -72,7 +74,7 @@ fn main() {
     )));
     world.add(Box::new(sphere::Sphere::new(
         vec3::Point3::new(-1.0, 0.0, -1.0),
-        -0.4,
+        -0.45,
         &material_left,
     )));
     world.add(Box::new(sphere::Sphere::new(
@@ -83,7 +85,13 @@ fn main() {
 
     // Camera
 
-    let camera = camera::Camera::new();
+    let camera = camera::Camera::new(
+        vec3::Point3::new(-2.0, 2.0, 1.0),
+        vec3::Point3::new(0.0, 0.0, -1.0),
+        vec3::Vec3::new(0.0, 1.0, 0.0),
+        20.0,
+        ASPECT_RATIO,
+    );
 
     // Render
 
