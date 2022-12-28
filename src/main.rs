@@ -3,7 +3,7 @@ use std::io::{self, Write};
 use std::rc::Rc;
 use std::time::Instant;
 
-use rand::Rng;
+use rand::{Rng, SeedableRng};
 
 use crate::color::write_color;
 
@@ -37,6 +37,8 @@ fn ray_color(ray: &ray::Ray, world: &dyn hittable::Hittable, depth: i32) -> vec3
 }
 
 fn random_scene() -> hittable_list::HittableList {
+    const RANDOM_SEED: u64 = 2;
+
     let mut world = hittable_list::HittableList::new();
 
     let ground_material: Rc<dyn material::Material> =
@@ -47,7 +49,7 @@ fn random_scene() -> hittable_list::HittableList {
         &ground_material,
     )));
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand_pcg::Pcg32::seed_from_u64(RANDOM_SEED);
     for a in -11..11 {
         for b in -11..11 {
             let choose_mat: f64 = rng.gen();
@@ -135,9 +137,9 @@ fn random_scene() -> hittable_list::HittableList {
 fn main() {
     // Image
     const ASPECT_RATIO: f64 = 3.0 / 2.0;
-    const IMAGE_WIDTH: u32 = 1200;
+    const IMAGE_WIDTH: u32 = 400; // 1200
     const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
-    const SAMPLES_PER_PIXEL: u32 = 500;
+    const SAMPLES_PER_PIXEL: u32 = 50; // 500
     const MAX_DEPTH: i32 = 50;
 
     // World
