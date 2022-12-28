@@ -6,8 +6,12 @@ Mostly adapted from [Ray Tracing In One Weekend](https://raytracing.github.io/bo
 
 ## How to run
 
-Render to file "image.ppm" with command:
+The rendering parameters, including output file name, are defined in main.rs. Run program with command:
 
 ```
->cargo run > image.ppm
+>cargo run
 ```
+
+## Example
+
+![example render](image.png)
