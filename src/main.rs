@@ -5,8 +5,6 @@ use std::time::Instant;
 
 use rand::{Rng, SeedableRng};
 
-use crate::color::write_color;
-
 pub mod camera;
 pub mod color;
 pub mod hittable;
@@ -142,6 +140,8 @@ fn main() {
     const SAMPLES_PER_PIXEL: u32 = 50; // 500
     const MAX_DEPTH: i32 = 50;
 
+    let mut image = image::RgbImage::new(IMAGE_WIDTH, IMAGE_HEIGHT);
+
     // World
 
     let world = random_scene();
@@ -168,8 +168,6 @@ fn main() {
 
     let start = Instant::now();
 
-    println!("P3\n{IMAGE_WIDTH}  {IMAGE_HEIGHT}\n255");
-
     let mut rng = rand::thread_rng();
     for j in (0..IMAGE_HEIGHT).rev() {
         eprint!("\rScanlines remaining: {j} ");
@@ -184,10 +182,16 @@ fn main() {
                 let ray = camera.get_ray(u, v);
                 pixel_color += ray_color(&ray, &world, MAX_DEPTH);
             }
-            write_color(&mut io::stdout().lock(), pixel_color, SAMPLES_PER_PIXEL).unwrap();
+            // write_color(&mut io::stdout().lock(), pixel_color, SAMPLES_PER_PIXEL).unwrap();
+            let pixel = color::color_to_pixel(pixel_color, SAMPLES_PER_PIXEL);
+            let y = IMAGE_HEIGHT - 1 - j;
+            image.put_pixel(i, y, pixel);
         }
     }
 
     let duration = start.elapsed();
     eprint!("\nDone.\nTime elapsed while rendering: {:?}", duration);
+    let _ = image
+        .save("image.png")
+        .expect("Should have been able to save");
 }
