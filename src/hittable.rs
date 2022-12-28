@@ -1,11 +1,11 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::{material, ray, vec3};
 
 pub struct HitRecord {
     pub p: vec3::Point3,
     pub normal: vec3::Vec3,
-    pub material: Option<Rc<dyn material::Material>>,
+    pub material: Option<Arc<dyn material::Material>>,
     pub t: f64,
     pub front_face: bool,
 }
@@ -41,7 +41,7 @@ impl HitRecord {
         self.p = other.p;
         self.normal = other.normal;
         match &other.material {
-            Some(material) => self.material = Option::Some(Rc::clone(&material)),
+            Some(material) => self.material = Option::Some(Arc::clone(&material)),
             None => self.material = Option::None,
         }
         self.t = other.t;
@@ -66,7 +66,7 @@ impl HitRecord {
     }
 }
 
-pub trait Hittable {
+pub trait Hittable: Send + Sync {
     fn hit(&self, _ray: &ray::Ray, _t_min: f64, _t_max: f64, _rec: &mut HitRecord) -> bool {
         false
     }
