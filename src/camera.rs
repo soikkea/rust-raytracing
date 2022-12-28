@@ -58,4 +58,8 @@ impl Camera {
             - offset;
         ray::Ray::new(&(&self.origin + offset), &direction)
     }
+
+    pub fn w(&self) -> &vec3::Vec3 {
+        &self.w
+    }
 }
