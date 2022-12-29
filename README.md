@@ -6,10 +6,10 @@ Mostly adapted from [Ray Tracing In One Weekend](https://raytracing.github.io/bo
 
 ## How to run
 
-The rendering parameters, including output file name, are defined in main.rs. Run program with command:
+The rendering parameters are defined in main.rs. You can give output file name as an argument, for example:
 
 ```
->cargo run
+>cargo run -r -- image.png
 ```
 
 ## Example
