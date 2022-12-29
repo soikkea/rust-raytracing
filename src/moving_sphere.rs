@@ -1,36 +1,44 @@
 use std::sync::Arc;
 
-use crate::{hittable, material, vec3};
+use crate::{hittable, material, ray, vec3};
 
-pub struct Sphere {
-    pub center: vec3::Point3,
+pub struct MovingSphere {
+    pub center0: vec3::Point3,
+    pub center1: vec3::Point3,
     pub radius: f64,
     pub material: Arc<dyn material::Material>,
+    pub time0: f64,
+    pub time1: f64,
 }
 
-impl Sphere {
+impl MovingSphere {
     pub fn new(
-        center: vec3::Point3,
+        center0: vec3::Point3,
+        center1: vec3::Point3,
+        time0: f64,
+        time1: f64,
         radius: f64,
         material: &Arc<dyn material::Material>,
-    ) -> Sphere {
-        Sphere {
-            center,
+    ) -> MovingSphere {
+        MovingSphere {
+            center0,
+            center1,
             radius,
             material: Arc::clone(material),
+            time0,
+            time1,
         }
+    }
+
+    pub fn center(&self, time: f64) -> vec3::Point3 {
+        self.center0
+            + ((time - self.time0) / (self.time1 - self.time0)) * (self.center1 - self.center0)
     }
 }
 
-impl hittable::Hittable for Sphere {
-    fn hit(
-        &self,
-        ray: &crate::ray::Ray,
-        t_min: f64,
-        t_max: f64,
-        rec: &mut hittable::HitRecord,
-    ) -> bool {
-        let oc = &ray.origin - &self.center;
+impl hittable::Hittable for MovingSphere {
+    fn hit(&self, ray: &ray::Ray, t_min: f64, t_max: f64, rec: &mut hittable::HitRecord) -> bool {
+        let oc = &ray.origin - &self.center(ray.time);
         let a = ray.direction.length_squared();
         let half_b = oc.dot(&ray.direction);
         let c = oc.length_squared() - self.radius * self.radius;
@@ -50,7 +58,7 @@ impl hittable::Hittable for Sphere {
         }
 
         let p = ray.at(root);
-        let outward_normal = &(p - self.center) / self.radius;
+        let outward_normal = &(p - self.center(ray.time)) / self.radius;
         rec.t = root;
         rec.p = p;
         rec.set_face_normal(ray, &outward_normal);

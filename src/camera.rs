@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use crate::{ray, vec3};
 
 pub struct Camera {
@@ -9,6 +11,8 @@ pub struct Camera {
     v: vec3::Vec3,
     w: vec3::Vec3,
     lens_radius: f64,
+    shutter_open_time: f64,
+    shutter_close_time: f64,
 }
 
 impl Camera {
@@ -20,6 +24,30 @@ impl Camera {
         aspect_ratio: f64,
         apeture: f64,
         focus_dist: f64,
+    ) -> Camera {
+        Camera::new_with_time(
+            look_from,
+            look_at,
+            v_up,
+            vfov_degrees,
+            aspect_ratio,
+            apeture,
+            focus_dist,
+            0.0,
+            0.0,
+        )
+    }
+
+    pub fn new_with_time(
+        look_from: vec3::Point3,
+        look_at: vec3::Point3,
+        v_up: vec3::Vec3,
+        vfov_degrees: f64,
+        aspect_ratio: f64,
+        apeture: f64,
+        focus_dist: f64,
+        shutter_open_time: f64,
+        shutter_close_time: f64,
     ) -> Camera {
         let theta = vfov_degrees.to_radians();
         let h = (theta / 2.0).tan();
@@ -46,6 +74,8 @@ impl Camera {
             v,
             w,
             lens_radius,
+            shutter_open_time,
+            shutter_close_time,
         }
     }
 
@@ -56,7 +86,10 @@ impl Camera {
         let direction = &self.lower_left_corner + s * self.horizontal + t * self.vertical
             - &self.origin
             - offset;
-        ray::Ray::new(&self.origin + offset, direction)
+
+        let mut rng = rand::thread_rng();
+        let time = rng.gen_range(self.shutter_open_time..self.shutter_close_time);
+        ray::Ray::new_with_time(&self.origin + offset, direction, time)
     }
 
     pub fn w(&self) -> &vec3::Vec3 {

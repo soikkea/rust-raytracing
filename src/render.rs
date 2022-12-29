@@ -10,7 +10,7 @@ use std::{
 
 use rand::{Rng, SeedableRng};
 
-use crate::{camera, color, hittable, hittable_list, material, ray, sphere, vec3};
+use crate::{camera, color, hittable, hittable_list, material, moving_sphere, ray, sphere, vec3};
 
 pub struct RenderConfig {
     pub image_width: u32,
@@ -18,6 +18,19 @@ pub struct RenderConfig {
     pub samples_per_pixel: u32,
     pub max_depth: u32,
     pub file_name: String,
+}
+
+impl RenderConfig {
+    pub fn with_aspec_ratio(
+        image_width: u32,
+        aspect_ratio: f64,
+        samples_per_pixel: u32,
+        max_depth: u32,
+        file_name: String
+    ) -> RenderConfig {
+        let image_height = ((image_width as f64) / aspect_ratio) as u32;
+        RenderConfig { image_width, image_height, samples_per_pixel, max_depth, file_name }
+    }
 }
 
 fn ray_color(ray: &ray::Ray, world: &dyn hittable::Hittable, depth: u32) -> vec3::Color {
@@ -69,7 +82,15 @@ fn random_scene() -> hittable_list::HittableList {
                     // diffuse
                     let albedo = vec3::Color::random() * vec3::Color::random();
                     sphere_material = Arc::new(material::Lambertian::new(&albedo));
-                    world.add(Box::new(sphere::Sphere::new(center, 0.2, &sphere_material)));
+                    let center2 = center + vec3::Vec3::new(0.0, rng.gen_range(0.0..0.5), 0.0);
+                    world.add(Box::new(moving_sphere::MovingSphere::new(
+                        center,
+                        center2,
+                        0.0,
+                        1.0,
+                        0.2,
+                        &sphere_material,
+                    )));
                 } else if choose_mat < 0.95 {
                     // metal
                     let albedo = vec3::Color::random_range(0.5, 1.0);
@@ -160,7 +181,7 @@ fn render(config: &RenderConfig) -> Result<image::RgbImage, RecvError> {
     let dist_to_focus = 10.0;
     let aperture = 0.1;
 
-    let camera = camera::Camera::new(
+    let camera = camera::Camera::new_with_time(
         look_from,
         look_at,
         v_up,
@@ -168,6 +189,8 @@ fn render(config: &RenderConfig) -> Result<image::RgbImage, RecvError> {
         aspect_ratio,
         aperture,
         dist_to_focus,
+        0.0,
+        1.0,
     );
 
     // Render
