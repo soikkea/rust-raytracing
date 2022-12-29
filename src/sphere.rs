@@ -32,7 +32,7 @@ impl hittable::Hittable for Sphere {
     ) -> bool {
         let oc = &ray.origin - &self.center;
         let a = ray.direction.length_squared();
-        let half_b = vec3::dot(&oc, &ray.direction);
+        let half_b = oc.dot(&ray.direction);
         let c = oc.length_squared() - self.radius * self.radius;
 
         let discriminant = half_b * half_b - a * c;

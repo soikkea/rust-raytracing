@@ -55,7 +55,7 @@ impl Material for Metal {
             rec.p,
             reflected + self.fuzz * &vec3::random_in_unit_sphere(),
         );
-        if vec3::dot(&scattered.direction, &rec.normal) > 0.0 {
+        if scattered.direction.dot(&rec.normal) > 0.0 {
             Option::Some(ScatterResult {
                 attenuation: self.albedo,
                 scattered,
@@ -95,7 +95,7 @@ impl Material for Dielectric {
         };
 
         let unit_direction = vec3::unit_vector(&ray_in.direction);
-        let cos_theta = vec3::dot(&-&unit_direction, &rec.normal).min(1.0);
+        let cos_theta = (-&unit_direction).dot(&rec.normal).min(1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
         let cannot_refract = refraction_ratio * sin_theta > 1.0;
