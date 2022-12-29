@@ -35,7 +35,7 @@ fn ray_color(ray: &ray::Ray, world: &dyn hittable::Hittable, depth: u32) -> vec3
         }
         return vec3::Color::origin();
     }
-    let unit_direction = vec3::unit_vector(ray.direction());
+    let unit_direction = vec3::unit_vector(&ray.direction);
     let t = 0.5 * (unit_direction.y() + 1.0);
     (1.0 - t) * vec3::Color::new(1.0, 1.0, 1.0) + t * vec3::Color::new(0.5, 0.7, 1.0)
 }

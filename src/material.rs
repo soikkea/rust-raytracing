@@ -29,7 +29,7 @@ impl Material for Lambertian {
 
         Option::Some(ScatterResult {
             attenuation: self.albedo,
-            scattered: ray::Ray::new(&rec.p, &scatter_direction),
+            scattered: ray::Ray::new(rec.p, scatter_direction),
         })
     }
 }
@@ -50,12 +50,12 @@ impl Metal {
 
 impl Material for Metal {
     fn scatter(&self, ray_in: &ray::Ray, rec: &hittable::HitRecord) -> Option<ScatterResult> {
-        let reflected = vec3::reflect(&vec3::unit_vector(&ray_in.direction()), &rec.normal);
+        let reflected = vec3::reflect(&vec3::unit_vector(&ray_in.direction), &rec.normal);
         let scattered = ray::Ray::new(
-            &rec.p,
-            &(reflected + self.fuzz * &vec3::random_in_unit_sphere()),
+            rec.p,
+            reflected + self.fuzz * &vec3::random_in_unit_sphere(),
         );
-        if vec3::dot(scattered.direction(), &rec.normal) > 0.0 {
+        if vec3::dot(&scattered.direction, &rec.normal) > 0.0 {
             Option::Some(ScatterResult {
                 attenuation: self.albedo,
                 scattered,
@@ -94,7 +94,7 @@ impl Material for Dielectric {
             self.ir
         };
 
-        let unit_direction = vec3::unit_vector(ray_in.direction());
+        let unit_direction = vec3::unit_vector(&ray_in.direction);
         let cos_theta = vec3::dot(&-&unit_direction, &rec.normal).min(1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
@@ -107,7 +107,7 @@ impl Material for Dielectric {
             vec3::refract(&unit_direction, &rec.normal, refraction_ratio)
         };
 
-        let scattered = ray::Ray::new(&rec.p, &direction);
+        let scattered = ray::Ray::new(rec.p, direction);
         Option::Some(ScatterResult {
             attenuation,
             scattered,

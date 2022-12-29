@@ -1,4 +1,4 @@
-use std::{sync::Arc};
+use std::sync::Arc;
 
 use crate::{hittable, material, vec3};
 
@@ -30,9 +30,9 @@ impl hittable::Hittable for Sphere {
         t_max: f64,
         _rec: &mut hittable::HitRecord,
     ) -> bool {
-        let oc = ray.origin() - &self.center;
-        let a = ray.direction().length_squared();
-        let half_b = vec3::dot(&oc, ray.direction());
+        let oc = &ray.origin - &self.center;
+        let a = ray.direction.length_squared();
+        let half_b = vec3::dot(&oc, &ray.direction);
         let c = oc.length_squared() - self.radius * self.radius;
 
         let discriminant = half_b * half_b - a * c;

@@ -56,7 +56,7 @@ impl Camera {
         let direction = &self.lower_left_corner + s * self.horizontal + t * self.vertical
             - &self.origin
             - offset;
-        ray::Ray::new(&(&self.origin + offset), &direction)
+        ray::Ray::new(&self.origin + offset, direction)
     }
 
     pub fn w(&self) -> &vec3::Vec3 {
