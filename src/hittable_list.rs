@@ -5,7 +5,7 @@ use crate::{
     hittable::{HitRecord, Hittable},
 };
 
-pub type HittableListObject = Arc<Box<dyn Hittable>>;
+pub type HittableListObject = Arc<dyn Hittable>;
 
 pub struct HittableList {
     pub objects: Vec<HittableListObject>,

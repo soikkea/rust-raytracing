@@ -15,6 +15,8 @@ pub trait Material: Send + Sync {
     fn scatter(&self, ray_in: &ray::Ray, rec: &hittable::HitRecord) -> Option<ScatterResult>;
 }
 
+pub type MaterialPtr = Arc<dyn Material>;
+
 pub struct Lambertian {
     pub albedo: TexturePtr,
 }
@@ -27,7 +29,7 @@ impl Lambertian {
     }
 
     pub fn new_from_color(albedo: &vec3::Color) -> Lambertian {
-        let texture: TexturePtr = Arc::new(Box::new(SolidColor::new(*albedo)));
+        let texture: TexturePtr = Arc::new(SolidColor::new(*albedo));
         Lambertian::new(&texture)
     }
 }

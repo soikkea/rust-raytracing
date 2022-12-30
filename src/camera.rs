@@ -22,7 +22,7 @@ impl Camera {
         v_up: vec3::Vec3,
         vfov_degrees: f64,
         aspect_ratio: f64,
-        apeture: f64,
+        aperture: f64,
         focus_dist: f64,
     ) -> Camera {
         Camera::new_with_time(
@@ -31,7 +31,7 @@ impl Camera {
             v_up,
             vfov_degrees,
             aspect_ratio,
-            apeture,
+            aperture,
             focus_dist,
             0.0,
             0.0,
@@ -44,7 +44,7 @@ impl Camera {
         v_up: vec3::Vec3,
         vfov_degrees: f64,
         aspect_ratio: f64,
-        apeture: f64,
+        aperture: f64,
         focus_dist: f64,
         shutter_open_time: f64,
         shutter_close_time: f64,
@@ -63,7 +63,7 @@ impl Camera {
         let vertical = focus_dist * viewport_height * v;
         let lower_left_corner = &origin - &horizontal / 2.0 - &vertical / 2.0 - focus_dist * w;
 
-        let lens_radius = apeture / 2.0;
+        let lens_radius = aperture / 2.0;
 
         Camera {
             origin,

@@ -6,7 +6,7 @@ pub trait Texture: Send + Sync {
     fn value(&self, u: f64, v: f64, point: &Point3) -> Color;
 }
 
-pub type TexturePtr = Arc<Box<dyn Texture>>;
+pub type TexturePtr = Arc<dyn Texture>;
 
 pub struct SolidColor {
     color_value: Color,
@@ -42,8 +42,8 @@ impl CheckerTexture {
     }
 
     pub fn new_from_colors(even_color: Color, odd_color: Color) -> CheckerTexture {
-        let even: TexturePtr = Arc::new(Box::new(SolidColor::new(even_color)));
-        let odd: TexturePtr = Arc::new(Box::new(SolidColor::new(odd_color)));
+        let even: TexturePtr = Arc::new(SolidColor::new(even_color));
+        let odd: TexturePtr = Arc::new(SolidColor::new(odd_color));
         CheckerTexture::new(&even, &odd)
     }
 }

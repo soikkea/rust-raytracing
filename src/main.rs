@@ -11,9 +11,10 @@ pub mod material;
 pub mod moving_sphere;
 pub mod ray;
 pub mod render;
+pub mod scenes;
 pub mod sphere;
-pub mod vec3;
 pub mod texture;
+pub mod vec3;
 
 fn main() {
     let mut args = env::args();
@@ -25,13 +26,14 @@ fn main() {
         None => String::from("image.png"),
     };
 
-    let config = render::RenderConfig {
-        image_width: 1200,
-        image_height: 800,
-        samples_per_pixel: 500,
-        max_depth: 50,
+    let config = render::RenderConfig::with_aspec_ratio(
+        400,
+        16.0 / 9.0,
+        100,
+        50,
         file_name,
-    };
+        scenes::Scene::TwoSpheres,
+    );
 
     if let Err(e) = render::render_and_save(config) {
         eprintln!("Error: {e}");

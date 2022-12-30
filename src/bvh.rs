@@ -49,9 +49,9 @@ impl BVHNode {
 
                 let mid = objects_size / 2;
                 let left_tmp: HittableListObject =
-                    Arc::new(Box::new(BVHNode::new(&my_objects[0..mid], time0, time1)));
+                    Arc::new(BVHNode::new(&my_objects[0..mid], time0, time1));
                 let right_tmp: HittableListObject =
-                    Arc::new(Box::new(BVHNode::new(&my_objects[mid..], time0, time1)));
+                    Arc::new(BVHNode::new(&my_objects[mid..], time0, time1));
 
                 (left_tmp, right_tmp)
             }
