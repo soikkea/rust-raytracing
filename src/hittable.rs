@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{material, ray, vec3};
+use crate::{aabb::AABB, material, ray, vec3};
 
 pub struct HitRecord {
     pub p: vec3::Point3,
@@ -70,4 +70,6 @@ pub trait Hittable: Send + Sync {
     fn hit(&self, _ray: &ray::Ray, _t_min: f64, _t_max: f64, _rec: &mut HitRecord) -> bool {
         false
     }
+
+    fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB>;
 }

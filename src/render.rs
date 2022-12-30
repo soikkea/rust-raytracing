@@ -10,7 +10,16 @@ use std::{
 
 use rand::{Rng, SeedableRng};
 
-use crate::{camera, color, hittable, hittable_list, material, moving_sphere, ray, sphere, vec3};
+use crate::{
+    bvh::BVHNode,
+    camera, color, hittable,
+    hittable_list::HittableList,
+    material::{self, Lambertian, Material},
+    moving_sphere::MovingSphere,
+    ray,
+    sphere::Sphere,
+    vec3::{self, Color, Point3},
+};
 
 pub struct RenderConfig {
     pub image_width: u32,
@@ -26,10 +35,16 @@ impl RenderConfig {
         aspect_ratio: f64,
         samples_per_pixel: u32,
         max_depth: u32,
-        file_name: String
+        file_name: String,
     ) -> RenderConfig {
         let image_height = ((image_width as f64) / aspect_ratio) as u32;
-        RenderConfig { image_width, image_height, samples_per_pixel, max_depth, file_name }
+        RenderConfig {
+            image_width,
+            image_height,
+            samples_per_pixel,
+            max_depth,
+            file_name,
+        }
     }
 }
 
@@ -53,18 +68,17 @@ fn ray_color(ray: &ray::Ray, world: &dyn hittable::Hittable, depth: u32) -> vec3
     (1.0 - t) * vec3::Color::new(1.0, 1.0, 1.0) + t * vec3::Color::new(0.5, 0.7, 1.0)
 }
 
-fn random_scene() -> hittable_list::HittableList {
+fn random_scene() -> HittableList {
     const RANDOM_SEED: u64 = 2;
 
-    let mut world = hittable_list::HittableList::new();
+    let mut world = HittableList::new();
 
-    let ground_material: Arc<dyn material::Material> =
-        Arc::new(material::Lambertian::new(&vec3::Color::new(0.5, 0.5, 0.5)));
-    world.add(Box::new(sphere::Sphere::new(
-        vec3::Point3::new(0.0, -1000.0, 0.0),
+    let ground_material: Arc<dyn Material> = Arc::new(Lambertian::new(&Color::new(0.5, 0.5, 0.5)));
+    world.add(Arc::new(Box::new(Sphere::new(
+        Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         &ground_material,
-    )) as Box<dyn hittable::Hittable + Send>);
+    ))));
 
     let mut rng = rand_pcg::Pcg32::seed_from_u64(RANDOM_SEED);
     for a in -11..11 {
@@ -83,50 +97,58 @@ fn random_scene() -> hittable_list::HittableList {
                     let albedo = vec3::Color::random() * vec3::Color::random();
                     sphere_material = Arc::new(material::Lambertian::new(&albedo));
                     let center2 = center + vec3::Vec3::new(0.0, rng.gen_range(0.0..0.5), 0.0);
-                    world.add(Box::new(moving_sphere::MovingSphere::new(
+                    world.add(Arc::new(Box::new(MovingSphere::new(
                         center,
                         center2,
                         0.0,
                         1.0,
                         0.2,
                         &sphere_material,
-                    )));
+                    ))));
                 } else if choose_mat < 0.95 {
                     // metal
                     let albedo = vec3::Color::random_range(0.5, 1.0);
                     let fuzz = rng.gen_range(0.0..0.5);
                     sphere_material = Arc::new(material::Metal::new(&albedo, fuzz));
-                    world.add(Box::new(sphere::Sphere::new(center, 0.2, &sphere_material)));
+                    world.add(Arc::new(Box::new(Sphere::new(
+                        center,
+                        0.2,
+                        &sphere_material,
+                    ))));
                 } else {
                     // glass
                     sphere_material = Arc::new(material::Dielectric::new(1.5));
-                    world.add(Box::new(sphere::Sphere::new(center, 0.2, &sphere_material)));
+                    world.add(Arc::new(Box::new(Sphere::new(
+                        center,
+                        0.2,
+                        &sphere_material,
+                    ))));
                 }
             }
         }
 
         let material: Arc<dyn material::Material> = Arc::new(material::Dielectric::new(1.5));
-        world.add(Box::new(sphere::Sphere::new(
-            vec3::Point3::new(0.0, 1.0, 0.0),
+        world.add(Arc::new(Box::new(Sphere::new(
+            Point3::new(0.0, 1.0, 0.0),
             1.0,
             &material,
-        )));
+        ))));
 
         let material: Arc<dyn material::Material> =
             Arc::new(material::Lambertian::new(&vec3::Color::new(0.4, 0.2, 0.1)));
-        world.add(Box::new(sphere::Sphere::new(
-            vec3::Point3::new(-4.0, 1.0, 0.0),
+        world.add(Arc::new(Box::new(Sphere::new(
+            Point3::new(-4.0, 1.0, 0.0),
             1.0,
             &material,
-        )));
+        ))));
 
         let material: Arc<dyn material::Material> =
             Arc::new(material::Metal::new(&vec3::Color::new(0.7, 0.6, 0.5), 0.0));
-        world.add(Box::new(sphere::Sphere::new(
-            vec3::Point3::new(4.0, 1.0, 0.0),
+        world.add(Arc::new(Box::new(Sphere::new(
+            Point3::new(4.0, 1.0, 0.0),
             1.0,
             &material,
-        )));
+        ))));
     }
 
     let material_center: Arc<dyn material::Material> =
@@ -135,26 +157,26 @@ fn random_scene() -> hittable_list::HittableList {
     let material_right: Arc<dyn material::Material> =
         Arc::new(material::Metal::new(&vec3::Color::new(0.8, 0.6, 0.2), 0.0));
 
-    world.add(Box::new(sphere::Sphere::new(
-        vec3::Point3::new(0.0, 0.0, -1.0),
+    world.add(Arc::new(Box::new(Sphere::new(
+        Point3::new(0.0, 0.0, -1.0),
         0.5,
         &material_center,
-    )));
-    world.add(Box::new(sphere::Sphere::new(
-        vec3::Point3::new(-1.0, 0.0, -1.0),
+    ))));
+    world.add(Arc::new(Box::new(Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
         0.5,
         &material_left,
-    )));
-    world.add(Box::new(sphere::Sphere::new(
-        vec3::Point3::new(-1.0, 0.0, -1.0),
+    ))));
+    world.add(Arc::new(Box::new(Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
         -0.45,
         &material_left,
-    )));
-    world.add(Box::new(sphere::Sphere::new(
-        vec3::Point3::new(1.0, 0.0, -1.0),
+    ))));
+    world.add(Arc::new(Box::new(Sphere::new(
+        Point3::new(1.0, 0.0, -1.0),
         0.5,
         &material_right,
-    )));
+    ))));
 
     world
 }
@@ -172,6 +194,7 @@ fn render(config: &RenderConfig) -> Result<image::RgbImage, RecvError> {
     // World
 
     let world = random_scene();
+    let bvh = BVHNode::new(&world.objects, 0.0, 1.0);
 
     // Camera
 
@@ -198,7 +221,8 @@ fn render(config: &RenderConfig) -> Result<image::RgbImage, RecvError> {
     let pool = threadpool::ThreadPool::new(num_cpus::get() - 1);
     let (tx, rx) = channel();
 
-    let world_arc = Arc::new(world);
+    //let world_arc = Arc::new(world);
+    let world_arc = Arc::new(bvh);
     let camera_arc = Arc::new(camera);
 
     let start = Instant::now();

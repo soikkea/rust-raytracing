@@ -1,19 +1,19 @@
 use std::sync::Arc;
 
-use crate::{hittable, material, vec3};
+use crate::{
+    aabb::AABB,
+    hittable, material,
+    vec3::{Point3, Vec3},
+};
 
 pub struct Sphere {
-    pub center: vec3::Point3,
+    pub center: Point3,
     pub radius: f64,
     pub material: Arc<dyn material::Material>,
 }
 
 impl Sphere {
-    pub fn new(
-        center: vec3::Point3,
-        radius: f64,
-        material: &Arc<dyn material::Material>,
-    ) -> Sphere {
+    pub fn new(center: Point3, radius: f64, material: &Arc<dyn material::Material>) -> Sphere {
         Sphere {
             center,
             radius,
@@ -57,5 +57,13 @@ impl hittable::Hittable for Sphere {
         rec.material = Option::Some(Arc::clone(&self.material));
 
         true
+    }
+
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
+        let output_box = AABB::new(
+            self.center - Vec3::new(self.radius, self.radius, self.radius),
+            self.center + Vec3::new(self.radius, self.radius, self.radius),
+        );
+        Some(output_box)
     }
 }

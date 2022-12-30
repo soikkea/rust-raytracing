@@ -1,7 +1,14 @@
-use crate::hittable::{self, HitRecord};
+use std::sync::Arc;
+
+use crate::{
+    aabb::AABB,
+    hittable::{HitRecord, Hittable},
+};
+
+pub type HittableListObject = Arc<Box<dyn Hittable>>;
 
 pub struct HittableList {
-    pub objects: Vec<Box<dyn hittable::Hittable>>,
+    pub objects: Vec<HittableListObject>,
 }
 
 impl HittableList {
@@ -11,14 +18,14 @@ impl HittableList {
         }
     }
 
-    pub fn add(&mut self, object: Box<dyn hittable::Hittable>) {
+    pub fn add(&mut self, object: HittableListObject) {
         self.objects.push(object);
     }
 }
 
-impl hittable::Hittable for HittableList {
+impl Hittable for HittableList {
     fn hit(&self, _ray: &crate::ray::Ray, _t_min: f64, _t_max: f64, _rec: &mut HitRecord) -> bool {
-        let mut temp_rec = hittable::HitRecord::empty();
+        let mut temp_rec = HitRecord::empty();
         let mut hit_anything = false;
         let mut closest_so_far = _t_max;
 
@@ -31,5 +38,31 @@ impl hittable::Hittable for HittableList {
         }
 
         hit_anything
+    }
+
+    fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB> {
+        if self.objects.is_empty() {
+            return None;
+        }
+
+        let mut output: Option<AABB> = None;
+
+        for object in &self.objects {
+            match object.bounding_box(time0, time1) {
+                None => {
+                    return None;
+                }
+                Some(temp_box) => match output {
+                    Some(output_box) => {
+                        output = Some(output_box.surrounding_box(&temp_box));
+                    }
+                    None => {
+                        output = Some(temp_box);
+                    }
+                },
+            }
+        }
+
+        output
     }
 }

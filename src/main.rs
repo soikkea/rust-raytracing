@@ -1,11 +1,14 @@
 use std::env;
 use std::process;
 
+pub mod aabb;
+pub mod bvh;
 pub mod camera;
 pub mod color;
 pub mod hittable;
 pub mod hittable_list;
 pub mod material;
+pub mod moving_sphere;
 pub mod ray;
 pub mod render;
 pub mod sphere;
