@@ -1,4 +1,10 @@
-use crate::{hittable, ray, vec3};
+use std::sync::Arc;
+
+use crate::{
+    hittable, ray,
+    texture::{SolidColor, TexturePtr},
+    vec3,
+};
 
 pub struct ScatterResult {
     pub attenuation: vec3::Color,
@@ -10,12 +16,19 @@ pub trait Material: Send + Sync {
 }
 
 pub struct Lambertian {
-    pub albedo: vec3::Color,
+    pub albedo: TexturePtr,
 }
 
 impl Lambertian {
-    pub fn new(albedo: &vec3::Color) -> Lambertian {
-        Lambertian { albedo: *albedo }
+    pub fn new(albedo: &TexturePtr) -> Lambertian {
+        Lambertian {
+            albedo: Arc::clone(albedo),
+        }
+    }
+
+    pub fn new_from_color(albedo: &vec3::Color) -> Lambertian {
+        let texture: TexturePtr = Arc::new(Box::new(SolidColor::new(*albedo)));
+        Lambertian::new(&texture)
     }
 }
 
@@ -28,9 +41,10 @@ impl Material for Lambertian {
         }
 
         let scattered = ray::Ray::new_with_time(rec.p, scatter_direction, ray_in.time);
+        let attenuation = self.albedo.value(rec.u, rec.v, &rec.p);
 
         Option::Some(ScatterResult {
-            attenuation: self.albedo,
+            attenuation,
             scattered,
         })
     }

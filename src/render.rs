@@ -18,6 +18,7 @@ use crate::{
     moving_sphere::MovingSphere,
     ray,
     sphere::Sphere,
+    texture::{CheckerTexture, TexturePtr},
     vec3::{self, Color, Point3},
 };
 
@@ -73,7 +74,12 @@ fn random_scene() -> HittableList {
 
     let mut world = HittableList::new();
 
-    let ground_material: Arc<dyn Material> = Arc::new(Lambertian::new(&Color::new(0.5, 0.5, 0.5)));
+    let checker: TexturePtr = Arc::new(Box::new(CheckerTexture::new_from_colors(
+        Color::new(0.2, 0.3, 0.1),
+        Color::new(0.9, 0.9, 0.9),
+    )));
+
+    let ground_material: Arc<dyn Material> = Arc::new(Lambertian::new(&checker));
     world.add(Arc::new(Box::new(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
@@ -95,7 +101,7 @@ fn random_scene() -> HittableList {
                 if choose_mat < 0.8 {
                     // diffuse
                     let albedo = vec3::Color::random() * vec3::Color::random();
-                    sphere_material = Arc::new(material::Lambertian::new(&albedo));
+                    sphere_material = Arc::new(material::Lambertian::new_from_color(&albedo));
                     let center2 = center + vec3::Vec3::new(0.0, rng.gen_range(0.0..0.5), 0.0);
                     world.add(Arc::new(Box::new(MovingSphere::new(
                         center,
@@ -134,8 +140,9 @@ fn random_scene() -> HittableList {
             &material,
         ))));
 
-        let material: Arc<dyn material::Material> =
-            Arc::new(material::Lambertian::new(&vec3::Color::new(0.4, 0.2, 0.1)));
+        let material: Arc<dyn material::Material> = Arc::new(material::Lambertian::new_from_color(
+            &vec3::Color::new(0.4, 0.2, 0.1),
+        ));
         world.add(Arc::new(Box::new(Sphere::new(
             Point3::new(-4.0, 1.0, 0.0),
             1.0,
@@ -151,8 +158,9 @@ fn random_scene() -> HittableList {
         ))));
     }
 
-    let material_center: Arc<dyn material::Material> =
-        Arc::new(material::Lambertian::new(&vec3::Color::new(0.1, 0.2, 0.5)));
+    let material_center: Arc<dyn material::Material> = Arc::new(
+        material::Lambertian::new_from_color(&vec3::Color::new(0.1, 0.2, 0.5)),
+    );
     let material_left: Arc<dyn material::Material> = Arc::new(material::Dielectric::new(1.5));
     let material_right: Arc<dyn material::Material> =
         Arc::new(material::Metal::new(&vec3::Color::new(0.8, 0.6, 0.2), 0.0));

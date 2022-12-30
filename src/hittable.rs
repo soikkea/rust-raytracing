@@ -8,10 +8,19 @@ pub struct HitRecord {
     pub material: Option<Arc<dyn material::Material>>,
     pub t: f64,
     pub front_face: bool,
+    pub u: f64,
+    pub v: f64,
 }
 
 impl HitRecord {
-    pub fn new(p: vec3::Point3, t: f64, ray: &ray::Ray, outward_normal: &vec3::Vec3) -> HitRecord {
+    pub fn new(
+        p: vec3::Point3,
+        t: f64,
+        ray: &ray::Ray,
+        outward_normal: &vec3::Vec3,
+        u: f64,
+        v: f64,
+    ) -> HitRecord {
         let front_face = ray.direction.dot(outward_normal) < 0.0;
         let normal = if front_face {
             *outward_normal
@@ -24,6 +33,8 @@ impl HitRecord {
             material: None,
             t,
             front_face,
+            u,
+            v,
         }
     }
 
@@ -34,6 +45,8 @@ impl HitRecord {
             material: None,
             t: 0.0,
             front_face: false,
+            u: 0.0,
+            v: 0.0,
         }
     }
 
@@ -46,6 +59,8 @@ impl HitRecord {
         }
         self.t = other.t;
         self.front_face = other.front_face;
+        self.u = other.u;
+        self.v = other.v;
     }
 
     pub fn t(&self) -> f64 {

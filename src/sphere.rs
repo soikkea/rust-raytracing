@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{f64::consts::PI, sync::Arc};
 
 use crate::{
     aabb::AABB,
@@ -19,6 +19,18 @@ impl Sphere {
             radius,
             material: Arc::clone(material),
         }
+    }
+
+    fn get_sphere_uv(point: &Point3) -> (f64, f64) {
+        // point: a given point on the sphere of radius one, centered at the origin
+        // Returns (
+        //   u: value [0, 1] of angle around the Y axis from X=-1.
+        //   v: value [0, 1] of angle from Y=-1 to Y=+1
+        // )
+        let theta = (-point.y()).acos();
+        let phi = (-point.z()).atan2(point.x()) + PI;
+
+        (phi / (2.0 * PI), theta / PI)
     }
 }
 
@@ -55,6 +67,7 @@ impl hittable::Hittable for Sphere {
         rec.p = p;
         rec.set_face_normal(ray, &outward_normal);
         rec.material = Option::Some(Arc::clone(&self.material));
+        (rec.u, rec.v) = Sphere::get_sphere_uv(&outward_normal);
 
         true
     }

@@ -13,6 +13,7 @@ pub mod ray;
 pub mod render;
 pub mod sphere;
 pub mod vec3;
+pub mod texture;
 
 fn main() {
     let mut args = env::args();
