@@ -41,7 +41,7 @@ impl HitRecord {
         self.p = other.p;
         self.normal = other.normal;
         match &other.material {
-            Some(material) => self.material = Option::Some(Arc::clone(&material)),
+            Some(material) => self.material = Option::Some(Arc::clone(material)),
             None => self.material = Option::None,
         }
         self.t = other.t;

@@ -7,7 +7,7 @@ pub fn write_color(
 ) -> std::io::Result<()> {
     let (r_out, g_out, b_out) = color_to_rgb(pixel_color, samples_per_pixel);
 
-    write!(out, "{} {} {}\n", r_out, g_out, b_out)?;
+    writeln!(out, "{} {} {}", r_out, g_out, b_out)?;
     Ok(())
 }
 

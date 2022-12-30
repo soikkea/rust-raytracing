@@ -49,7 +49,7 @@ impl RenderConfig {
 }
 
 fn ray_color(ray: &ray::Ray, world: &dyn hittable::Hittable, depth: u32) -> vec3::Color {
-    if depth <= 0 {
+    if depth == 0 {
         return vec3::Color::new(0.0, 0.0, 0.0);
     }
 
@@ -269,7 +269,7 @@ fn render(config: &RenderConfig) -> Result<image::RgbImage, RecvError> {
 }
 
 fn save_image(image: image::RgbImage, file_name: &str) -> Result<(), image::ImageError> {
-    let _ = image.save(file_name)?;
+    image.save(file_name)?;
     Ok(())
 }
 
