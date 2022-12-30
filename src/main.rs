@@ -9,6 +9,7 @@ pub mod hittable;
 pub mod hittable_list;
 pub mod material;
 pub mod moving_sphere;
+pub mod perlin;
 pub mod ray;
 pub mod render;
 pub mod scenes;
@@ -32,7 +33,7 @@ fn main() {
         100,
         50,
         file_name,
-        scenes::Scene::TwoSpheres,
+        scenes::Scene::TwoPerlinSpheres,
     );
 
     if let Err(e) = render::render_and_save(config) {

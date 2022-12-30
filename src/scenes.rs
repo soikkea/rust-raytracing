@@ -9,13 +9,14 @@ use crate::{
     moving_sphere::MovingSphere,
     render::RenderConfig,
     sphere::Sphere,
-    texture::{CheckerTexture, TexturePtr},
+    texture::{CheckerTexture, NoiseTexture, TexturePtr},
     vec3::{Color, Point3, Vec3},
 };
 
 pub enum Scene {
     Random,
     TwoSpheres,
+    TwoPerlinSpheres,
 }
 
 pub struct SceneConfig {
@@ -33,7 +34,6 @@ impl SceneConfig {
         let look_from;
         let look_at;
         let world;
-        let camera;
         let focus_dist = 10.0;
         match &config.scene {
             Scene::Random => {
@@ -49,8 +49,14 @@ impl SceneConfig {
                 look_at = Point3::new(0.0, 0.0, 0.0);
                 v_fov = 20.0;
             }
+            Scene::TwoPerlinSpheres => {
+                world = two_perlin_spheres();
+                look_from = Point3::new(13.0, 2.0, 3.0);
+                look_at = Point3::new(0.0, 0.0, 0.0);
+                v_fov = 20.0;
+            }
         }
-        camera = Camera::new_with_time(
+        let camera = Camera::new_with_time(
             look_from,
             look_at,
             v_up,
@@ -191,6 +197,27 @@ fn two_spheres() -> HittableList {
     world.add(Arc::new(Sphere::new(
         Point3::new(0.0, 10.0, 0.0),
         10.0,
+        &material,
+    )));
+
+    world
+}
+
+fn two_perlin_spheres() -> HittableList {
+    let mut world = HittableList::new();
+
+    let per_text: TexturePtr = Arc::new(NoiseTexture::new(4.0));
+
+    let material: MaterialPtr = Arc::new(Lambertian::new(&per_text));
+
+    world.add(Arc::new(Sphere::new(
+        Point3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        &material,
+    )));
+    world.add(Arc::new(Sphere::new(
+        Point3::new(0.0, 2.0, 0.0),
+        2.0,
         &material,
     )));
 
