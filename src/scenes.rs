@@ -5,6 +5,7 @@ use rand::{Rng, SeedableRng};
 use crate::{
     aarect::{XYRect, XZRect, YZRect},
     camera::Camera,
+    color::Background,
     hittable_list::HittableList,
     material::{Dielectric, DiffuseLight, Lambertian, Material, MaterialPtr, Metal},
     moving_sphere::MovingSphere,
@@ -26,7 +27,7 @@ pub enum Scene {
 pub struct SceneConfig {
     pub camera: Camera,
     pub world: HittableList,
-    pub background: Color,
+    pub background: Background,
 }
 
 impl SceneConfig {
@@ -40,24 +41,25 @@ impl SceneConfig {
         let mut look_at = Point3::new(0.0, 0.0, 0.0);
         let world;
         let focus_dist = 10.0;
-        let mut background = Color::origin();
+        let mut background = Background::Solid(Color::origin());
         match &config.scene {
             Scene::Random => {
                 world = random_scene();
-                background = Color::new(0.70, 0.80, 1.00);
+                background =
+                    Background::Gradient(Color::new(0.5, 0.7, 1.0), Color::new(1.0, 1.0, 1.0));
                 aperture = 0.1;
             }
             Scene::TwoSpheres => {
                 world = two_spheres();
-                background = Color::new(0.70, 0.80, 1.00);
+                background = Background::Solid(Color::new(0.70, 0.80, 1.00));
             }
             Scene::TwoPerlinSpheres => {
                 world = two_perlin_spheres();
-                background = Color::new(0.70, 0.80, 1.00);
+                background = Background::Solid(Color::new(0.70, 0.80, 1.00));
             }
             Scene::Earth => {
                 world = earth();
-                background = Color::new(0.70, 0.80, 1.00);
+                background = Background::Solid(Color::new(0.70, 0.80, 1.00));
             }
             Scene::SimpleLight => {
                 world = simple_light();
@@ -69,7 +71,7 @@ impl SceneConfig {
                 look_from = Point3::new(278.0, 278.0, -800.0);
                 look_at = Point3::new(278.0, 278.0, 0.0);
                 v_fov = 40.0;
-            },
+            }
         }
         let camera = Camera::new_with_time(
             look_from,

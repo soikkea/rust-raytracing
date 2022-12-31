@@ -1,4 +1,4 @@
-use crate::vec3;
+use crate::vec3::{self, unit_vector, Color, Vec3};
 
 pub fn write_color(
     out: &mut impl std::io::Write,
@@ -30,4 +30,23 @@ pub fn color_to_pixel(pixel_color: vec3::Color, samples_per_pixel: u32) -> image
     let (r, g, b) = color_to_rgb(pixel_color, samples_per_pixel);
 
     image::Rgb([r, g, b])
+}
+
+#[derive(Clone, Copy)]
+pub enum Background {
+    Solid(Color),
+    Gradient(Color, Color),
+}
+
+impl Background {
+    pub fn background_color(&self, direction: &Vec3) -> Color {
+        match self {
+            Background::Solid(color) => *color,
+            Background::Gradient(start_color, end_color) => {
+                let unit_direction = unit_vector(direction);
+                let t = 0.5 * (unit_direction.y() + 1.0);
+                (1.0 - t) * end_color + t * start_color
+            }
+        }
+    }
 }

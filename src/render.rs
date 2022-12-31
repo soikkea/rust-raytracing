@@ -12,12 +12,12 @@ use rand::Rng;
 
 use crate::{
     bvh::BVHNode,
-    color,
+    color::{self, Background},
     hittable::{HitRecord, Hittable},
     material::ScatterResult,
-    ray::{Ray},
+    ray::Ray,
     scenes::{Scene, SceneConfig},
-    vec3::{Color},
+    vec3::Color,
 };
 
 pub struct RenderConfig {
@@ -60,7 +60,7 @@ impl RenderConfig {
     }
 }
 
-fn ray_color(ray: &Ray, background: &Color, world: &dyn Hittable, depth: u32) -> Color {
+fn ray_color(ray: &Ray, background: &Background, world: &dyn Hittable, depth: u32) -> Color {
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if depth == 0 {
         return Color::new(0.0, 0.0, 0.0);
@@ -70,7 +70,7 @@ fn ray_color(ray: &Ray, background: &Color, world: &dyn Hittable, depth: u32) ->
 
     // If the ray hits nothing, return the background color.
     if !world.hit(ray, 0.001, f64::INFINITY, &mut hit_record) {
-        return *background;
+        return background.background_color(&ray.direction);
     }
 
     let material = hit_record
