@@ -3,9 +3,10 @@ use std::sync::Arc;
 use rand::{Rng, SeedableRng};
 
 use crate::{
+    aarect::{XYRect, XZRect, YZRect},
     camera::Camera,
     hittable_list::HittableList,
-    material::{Dielectric, Lambertian, Material, MaterialPtr, Metal},
+    material::{Dielectric, DiffuseLight, Lambertian, Material, MaterialPtr, Metal},
     moving_sphere::MovingSphere,
     render::RenderConfig,
     sphere::Sphere,
@@ -18,38 +19,57 @@ pub enum Scene {
     TwoSpheres,
     TwoPerlinSpheres,
     Earth,
+    SimpleLight,
+    CornellBox,
 }
 
 pub struct SceneConfig {
     pub camera: Camera,
     pub world: HittableList,
+    pub background: Color,
 }
 
 impl SceneConfig {
     pub fn get_scene(config: &RenderConfig) -> SceneConfig {
         let v_up = Vec3::new(0.0, 1.0, 0.0);
-        let v_fov = 20.0;
+        let mut v_fov = 20.0;
         let mut aperture = 0.0;
         let time0 = 0.0;
         let time1 = 1.0;
-        let look_from = Point3::new(13.0, 2.0, 3.0);
-        let look_at = Point3::new(0.0, 0.0, 0.0);
+        let mut look_from = Point3::new(13.0, 2.0, 3.0);
+        let mut look_at = Point3::new(0.0, 0.0, 0.0);
         let world;
         let focus_dist = 10.0;
+        let mut background = Color::origin();
         match &config.scene {
             Scene::Random => {
                 world = random_scene();
+                background = Color::new(0.70, 0.80, 1.00);
                 aperture = 0.1;
             }
             Scene::TwoSpheres => {
                 world = two_spheres();
+                background = Color::new(0.70, 0.80, 1.00);
             }
             Scene::TwoPerlinSpheres => {
                 world = two_perlin_spheres();
+                background = Color::new(0.70, 0.80, 1.00);
             }
             Scene::Earth => {
                 world = earth();
+                background = Color::new(0.70, 0.80, 1.00);
             }
+            Scene::SimpleLight => {
+                world = simple_light();
+                look_from = Point3::new(26.0, 3.0, 6.0);
+                look_at = Point3::new(0.0, 2.0, 0.0);
+            }
+            Scene::CornellBox => {
+                world = cornell_box();
+                look_from = Point3::new(278.0, 278.0, -800.0);
+                look_at = Point3::new(278.0, 278.0, 0.0);
+                v_fov = 40.0;
+            },
         }
         let camera = Camera::new_with_time(
             look_from,
@@ -62,7 +82,11 @@ impl SceneConfig {
             time0,
             time1,
         );
-        SceneConfig { camera, world }
+        SceneConfig {
+            camera,
+            world,
+            background,
+        }
     }
 }
 
@@ -231,6 +255,57 @@ fn earth() -> HittableList {
         2.0,
         &earth_surface,
     )));
+
+    world
+}
+
+fn simple_light() -> HittableList {
+    let mut world = HittableList::new();
+
+    let per_text: TexturePtr = Arc::new(NoiseTexture::new(4.0));
+
+    let material: MaterialPtr = Arc::new(Lambertian::new(&per_text));
+
+    world.add(Arc::new(Sphere::new(
+        Point3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        &material,
+    )));
+    world.add(Arc::new(Sphere::new(
+        Point3::new(0.0, 2.0, 0.0),
+        2.0,
+        &material,
+    )));
+
+    let diff_light: MaterialPtr =
+        Arc::new(DiffuseLight::new_from_color(&Color::new(4.0, 4.0, 4.0)));
+    world.add(Arc::new(XYRect::new(3.0, 5.0, 1.0, 3.0, -2.0, &diff_light)));
+
+    world.add(Arc::new(Sphere::new(
+        Point3::new(0.0, 10.0, 0.0),
+        2.0,
+        &diff_light,
+    )));
+
+    world
+}
+
+fn cornell_box() -> HittableList {
+    let mut world = HittableList::new();
+
+    let red: MaterialPtr = Arc::new(Lambertian::new_from_color(&Color::new(0.65, 0.05, 0.05)));
+    let white: MaterialPtr = Arc::new(Lambertian::new_from_color(&Color::new(0.73, 0.73, 0.73)));
+    let green: MaterialPtr = Arc::new(Lambertian::new_from_color(&Color::new(0.12, 0.45, 0.15)));
+    let light: MaterialPtr = Arc::new(DiffuseLight::new_from_color(&Color::new(15.0, 15.0, 15.0)));
+
+    world.add(Arc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 555.0, &green)));
+    world.add(Arc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, &red)));
+    world.add(Arc::new(XZRect::new(
+        213.0, 343.0, 227.0, 332.0, 554.0, &light,
+    )));
+    world.add(Arc::new(XZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, &white)));
+    world.add(Arc::new(XZRect::new(0.0, 555.0, 0.0, 555.0, 555.0, &white)));
+    world.add(Arc::new(XYRect::new(0.0, 555.0, 0.0, 555.0, 555.0, &white)));
 
     world
 }

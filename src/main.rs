@@ -2,6 +2,7 @@ use std::env;
 use std::process;
 
 pub mod aabb;
+pub mod aarect;
 pub mod bvh;
 pub mod camera;
 pub mod color;
@@ -28,12 +29,12 @@ fn main() {
     };
 
     let config = render::RenderConfig::with_aspec_ratio(
-        400,
-        16.0 / 9.0,
-        100,
+        600,
+        1.0,
+        200,
         50,
         file_name,
-        scenes::Scene::TwoPerlinSpheres,
+        scenes::Scene::CornellBox,
     );
 
     if let Err(e) = render::render_and_save(config) {

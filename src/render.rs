@@ -12,9 +12,12 @@ use rand::Rng;
 
 use crate::{
     bvh::BVHNode,
-    color, hittable, ray,
+    color,
+    hittable::{HitRecord, Hittable},
+    material::ScatterResult,
+    ray::{Ray},
     scenes::{Scene, SceneConfig},
-    vec3::{unit_vector, Color},
+    vec3::{Color},
 };
 
 pub struct RenderConfig {
@@ -57,24 +60,34 @@ impl RenderConfig {
     }
 }
 
-fn ray_color(ray: &ray::Ray, world: &dyn hittable::Hittable, depth: u32) -> Color {
+fn ray_color(ray: &Ray, background: &Color, world: &dyn Hittable, depth: u32) -> Color {
+    // If we've exceeded the ray bounce limit, no more light is gathered.
     if depth == 0 {
         return Color::new(0.0, 0.0, 0.0);
     }
 
-    let mut hit_record = hittable::HitRecord::empty();
+    let mut hit_record = HitRecord::empty();
 
-    if world.hit(ray, 0.001, f64::INFINITY, &mut hit_record) {
-        if let Some(material) = &hit_record.material {
-            if let Some(result) = material.scatter(ray, &hit_record) {
-                return result.attenuation * ray_color(&result.scattered, world, depth - 1);
-            }
-        }
-        return Color::origin();
+    // If the ray hits nothing, return the background color.
+    if !world.hit(ray, 0.001, f64::INFINITY, &mut hit_record) {
+        return *background;
     }
-    let unit_direction = unit_vector(&ray.direction);
-    let t = 0.5 * (unit_direction.y() + 1.0);
-    (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
+
+    let material = hit_record
+        .material
+        .as_ref()
+        .expect("HitRecord should contain material");
+    let emitted = material.emitted(hit_record.u, hit_record.v, &hit_record.p);
+
+    let scatter_result = material.scatter(ray, &hit_record);
+
+    match scatter_result {
+        None => emitted,
+        Some(ScatterResult {
+            attenuation,
+            scattered,
+        }) => emitted + attenuation * ray_color(&scattered, background, world, depth - 1),
+    }
 }
 
 fn render(config: &RenderConfig) -> Result<image::RgbImage, RecvError> {
@@ -122,7 +135,8 @@ fn render(config: &RenderConfig) -> Result<image::RgbImage, RecvError> {
                     let u: f64 = (i as f64 + u_rand) / (image_width - 1) as f64;
                     let v: f64 = (j as f64 + v_rand) / (image_height - 1) as f64;
                     let ray = thread_camera.get_ray(u, v);
-                    pixel_color += ray_color(&ray, thread_world.as_ref(), max_depth);
+                    pixel_color +=
+                        ray_color(&ray, &scene.background, thread_world.as_ref(), max_depth);
                 }
                 let pixel = color::color_to_pixel(pixel_color, samples_per_pixel);
                 let y = image_height - 1 - j;
