@@ -16,6 +16,8 @@ The rendering parameters are defined in main.rs. You can give output file name a
 
 ![example render](image.png)
 
+![Cornell box](cornell_box.png)
+
 ## Resources
 
 Earth map from https://pxhere.com/en/photo/1025037
