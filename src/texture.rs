@@ -83,3 +83,78 @@ impl Texture for NoiseTexture {
             * (1.0 + (self.scale * point.z() + 10.0 * self.noise.turbulence(point, 7)).sin())
     }
 }
+
+pub struct ImageTexture {
+    data: Vec<u8>,
+    width: u32,
+    height: u32,
+    bytes_per_scanline: u32,
+}
+
+impl ImageTexture {
+    const BYTES_PER_PIXEL: u32 = 3;
+
+    pub fn new(file_name: &str) -> ImageTexture {
+        let image = image::open(file_name).map(|i| i.to_rgb8());
+
+        let mut width = 0;
+        let mut height = 0;
+        let mut bytes_per_scanline = 0;
+
+        let data;
+
+        match image {
+            Err(e) => {
+                eprintln!("ERROR: Could not load texture file {}: {:?}", file_name, e);
+                data = vec![];
+            }
+            Ok(image) => {
+                width = image.width();
+                height = image.height();
+                data = image.into_raw();
+                bytes_per_scanline = ImageTexture::BYTES_PER_PIXEL * width;
+            }
+        }
+
+        ImageTexture {
+            data,
+            width,
+            height,
+            bytes_per_scanline,
+        }
+    }
+}
+
+impl Texture for ImageTexture {
+    fn value(&self, u: f64, v: f64, _point: &Point3) -> Color {
+        // If we have no texture data, then return solid cyan as a debugging aid.
+        if self.data.is_empty() {
+            return Color::new(0.0, 1.0, 1.0);
+        }
+
+        // Clamp input texture coordinates to [0, 1] x [1, 0]
+        let u = u.clamp(0.0, 1.0);
+        let v = 1.0 - v.clamp(0.0, 1.0); // Flip V to image coordinates
+
+        let mut i = (u * self.width as f64) as u32;
+        let mut j = (v * self.height as f64) as u32;
+
+        // Clamp integer mapping, since actual coordinates should be less than 1.0
+        if i >= self.width {
+            i = self.width - 1;
+        }
+        if j >= self.height {
+            j = self.height - 1;
+        }
+
+        let color_scale = 1.0 / 255.0;
+        let pixel_index =
+            (j * self.bytes_per_scanline + i * ImageTexture::BYTES_PER_PIXEL) as usize;
+
+        Color::new(
+            color_scale * self.data[pixel_index] as f64,
+            color_scale * self.data[pixel_index + 1] as f64,
+            color_scale * self.data[pixel_index + 2] as f64,
+        )
+    }
+}

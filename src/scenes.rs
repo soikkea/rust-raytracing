@@ -9,7 +9,7 @@ use crate::{
     moving_sphere::MovingSphere,
     render::RenderConfig,
     sphere::Sphere,
-    texture::{CheckerTexture, NoiseTexture, TexturePtr},
+    texture::{CheckerTexture, ImageTexture, NoiseTexture, TexturePtr},
     vec3::{Color, Point3, Vec3},
 };
 
@@ -17,6 +17,7 @@ pub enum Scene {
     Random,
     TwoSpheres,
     TwoPerlinSpheres,
+    Earth,
 }
 
 pub struct SceneConfig {
@@ -27,33 +28,27 @@ pub struct SceneConfig {
 impl SceneConfig {
     pub fn get_scene(config: &RenderConfig) -> SceneConfig {
         let v_up = Vec3::new(0.0, 1.0, 0.0);
-        let v_fov; // 40.0
+        let v_fov = 20.0;
         let mut aperture = 0.0;
         let time0 = 0.0;
         let time1 = 1.0;
-        let look_from;
-        let look_at;
+        let look_from = Point3::new(13.0, 2.0, 3.0);
+        let look_at = Point3::new(0.0, 0.0, 0.0);
         let world;
         let focus_dist = 10.0;
         match &config.scene {
             Scene::Random => {
                 world = random_scene();
-                look_from = Point3::new(13.0, 2.0, 3.0);
-                look_at = Point3::new(0.0, 0.0, 0.0);
-                v_fov = 20.0;
                 aperture = 0.1;
             }
             Scene::TwoSpheres => {
                 world = two_spheres();
-                look_from = Point3::new(13.0, 2.0, 3.0);
-                look_at = Point3::new(0.0, 0.0, 0.0);
-                v_fov = 20.0;
             }
             Scene::TwoPerlinSpheres => {
                 world = two_perlin_spheres();
-                look_from = Point3::new(13.0, 2.0, 3.0);
-                look_at = Point3::new(0.0, 0.0, 0.0);
-                v_fov = 20.0;
+            }
+            Scene::Earth => {
+                world = earth();
             }
         }
         let camera = Camera::new_with_time(
@@ -219,6 +214,22 @@ fn two_perlin_spheres() -> HittableList {
         Point3::new(0.0, 2.0, 0.0),
         2.0,
         &material,
+    )));
+
+    world
+}
+
+fn earth() -> HittableList {
+    let mut world = HittableList::new();
+
+    let earth_texture: TexturePtr = Arc::new(ImageTexture::new("earthmap.jpg"));
+
+    let earth_surface: MaterialPtr = Arc::new(Lambertian::new(&earth_texture));
+
+    world.add(Arc::new(Sphere::new(
+        Point3::new(0.0, 0.0, 0.0),
+        2.0,
+        &earth_surface,
     )));
 
     world

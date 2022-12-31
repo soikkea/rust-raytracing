@@ -15,3 +15,7 @@ The rendering parameters are defined in main.rs. You can give output file name a
 ## Example
 
 ![example render](image.png)
+
+## Resources
+
+Earth map from https://pxhere.com/en/photo/1025037
