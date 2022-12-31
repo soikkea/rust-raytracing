@@ -12,9 +12,15 @@ The rendering parameters are defined in main.rs. You can give output file name a
 >cargo run -r -- image.png
 ```
 
-## Example
+## Examples
 
-![example render](image.png)
+![example render](random.png)
+
+![Perlin noise](perlin.png)
+
+![Textures](earth.jpg)
+
+![Lights](simple_light.png)
 
 ![Cornell box](cornell_box.png)
 
