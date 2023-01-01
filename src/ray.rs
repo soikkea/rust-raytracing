@@ -8,11 +8,11 @@ pub struct Ray {
 }
 
 impl Ray {
-    pub fn new(origin: vec3::Point3, direction: vec3::Vec3) -> Ray {
-        Ray::new_with_time(origin, direction, 0.0)
+    pub fn new_at_t0(origin: vec3::Point3, direction: vec3::Vec3) -> Ray {
+        Ray::new(origin, direction, 0.0)
     }
 
-    pub fn new_with_time(origin: vec3::Point3, direction: vec3::Vec3, time: f64) -> Ray {
+    pub fn new(origin: vec3::Point3, direction: vec3::Vec3, time: f64) -> Ray {
         Ray {
             origin,
             direction,

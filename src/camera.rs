@@ -89,7 +89,7 @@ impl Camera {
 
         let mut rng = rand::thread_rng();
         let time = rng.gen_range(self.shutter_open_time..self.shutter_close_time);
-        ray::Ray::new_with_time(&self.origin + offset, direction, time)
+        ray::Ray::new(&self.origin + offset, direction, time)
     }
 
     pub fn w(&self) -> &vec3::Vec3 {

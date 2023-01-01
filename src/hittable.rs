@@ -124,7 +124,7 @@ impl Hittable for Translate {
     }
 
     fn hit(&self, ray: &ray::Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
-        let moved_ray = Ray::new_with_time(ray.origin - self.offset, ray.direction, ray.time);
+        let moved_ray = Ray::new(ray.origin - self.offset, ray.direction, ray.time);
         if !self.hittable.hit(&moved_ray, t_min, t_max, rec) {
             return false;
         }
@@ -206,7 +206,7 @@ impl Hittable for RotateY {
         direction[0] = self.cos_theta * ray.direction[0] - self.sin_theta * ray.direction[2];
         direction[2] = self.sin_theta * ray.direction[0] + self.cos_theta * ray.direction[2];
 
-        let rotated_ray = Ray::new_with_time(origin, direction, 0.0);
+        let rotated_ray = Ray::new(origin, direction, 0.0);
 
         if !self.hittable.hit(&rotated_ray, t_min, t_max, rec) {
             return false;

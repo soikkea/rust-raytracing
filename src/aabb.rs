@@ -75,7 +75,7 @@ mod tests {
 
         let origin = Vec3::new(0.5, -0.5, 0.5);
         let direction = Vec3::new(0.0, 1.0, 0.0);
-        let ray = Ray::new(origin, direction);
+        let ray = Ray::new_at_t0(origin, direction);
 
         assert!(!aabb.hit(&ray, 0.0, 0.4), "Too short ray hit");
 
