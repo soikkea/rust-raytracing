@@ -3,6 +3,7 @@ use std::process;
 
 pub mod aabb;
 pub mod aarect;
+pub mod box_struct;
 pub mod bvh;
 pub mod camera;
 pub mod color;

@@ -4,19 +4,18 @@ use rand::Rng;
 
 use crate::{
     aabb::AABB,
-    hittable::{HitRecord, Hittable},
-    hittable_list::HittableListObject,
+    hittable::{HitRecord, Hittable, HittablePtr},
     ray::Ray,
 };
 
 pub struct BVHNode {
-    pub left: HittableListObject,
-    pub right: HittableListObject,
+    pub left: HittablePtr,
+    pub right: HittablePtr,
     pub bounding_box: AABB,
 }
 
 impl BVHNode {
-    pub fn new(source_objects: &[HittableListObject], time0: f64, time1: f64) -> BVHNode {
+    pub fn new(source_objects: &[HittablePtr], time0: f64, time1: f64) -> BVHNode {
         let mut my_objects = Vec::new();
 
         for object in source_objects {
@@ -48,9 +47,9 @@ impl BVHNode {
                 my_objects.sort_by(comparator);
 
                 let mid = objects_size / 2;
-                let left_tmp: HittableListObject =
+                let left_tmp: HittablePtr =
                     Arc::new(BVHNode::new(&my_objects[0..mid], time0, time1));
-                let right_tmp: HittableListObject =
+                let right_tmp: HittablePtr =
                     Arc::new(BVHNode::new(&my_objects[mid..], time0, time1));
 
                 (left_tmp, right_tmp)
@@ -76,7 +75,7 @@ impl BVHNode {
     }
 }
 
-fn box_compare(a: &HittableListObject, b: &HittableListObject, axis: usize) -> std::cmp::Ordering {
+fn box_compare(a: &HittablePtr, b: &HittablePtr, axis: usize) -> std::cmp::Ordering {
     let box_a = a.bounding_box(0.0, 0.0);
     let box_b = b.bounding_box(0.0, 0.0);
 
@@ -89,15 +88,15 @@ fn box_compare(a: &HittableListObject, b: &HittableListObject, axis: usize) -> s
         .total_cmp(&box_b.map_or_else(|| 0.0, |b| b.min().e[axis]))
 }
 
-fn box_x_compare(a: &HittableListObject, b: &HittableListObject) -> std::cmp::Ordering {
+fn box_x_compare(a: &HittablePtr, b: &HittablePtr) -> std::cmp::Ordering {
     box_compare(a, b, 0)
 }
 
-fn box_y_compare(a: &HittableListObject, b: &HittableListObject) -> std::cmp::Ordering {
+fn box_y_compare(a: &HittablePtr, b: &HittablePtr) -> std::cmp::Ordering {
     box_compare(a, b, 1)
 }
 
-fn box_z_compare(a: &HittableListObject, b: &HittableListObject) -> std::cmp::Ordering {
+fn box_z_compare(a: &HittablePtr, b: &HittablePtr) -> std::cmp::Ordering {
     box_compare(a, b, 2)
 }
 

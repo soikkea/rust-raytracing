@@ -1,14 +1,12 @@
-use std::sync::Arc;
+
 
 use crate::{
     aabb::AABB,
-    hittable::{HitRecord, Hittable},
+    hittable::{HitRecord, Hittable, HittablePtr},
 };
 
-pub type HittableListObject = Arc<dyn Hittable>;
-
 pub struct HittableList {
-    pub objects: Vec<HittableListObject>,
+    pub objects: Vec<HittablePtr>,
 }
 
 impl HittableList {
@@ -18,7 +16,7 @@ impl HittableList {
         }
     }
 
-    pub fn add(&mut self, object: HittableListObject) {
+    pub fn add(&mut self, object: HittablePtr) {
         self.objects.push(object);
     }
 }

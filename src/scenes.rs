@@ -4,8 +4,10 @@ use rand::{Rng, SeedableRng};
 
 use crate::{
     aarect::{XYRect, XZRect, YZRect},
+    box_struct::Box,
     camera::Camera,
     color::Background,
+    hittable::{HittablePtr, RotateY, Translate},
     hittable_list::HittableList,
     material::{Dielectric, DiffuseLight, Lambertian, Material, MaterialPtr, Metal},
     moving_sphere::MovingSphere,
@@ -308,6 +310,28 @@ fn cornell_box() -> HittableList {
     world.add(Arc::new(XZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, &white)));
     world.add(Arc::new(XZRect::new(0.0, 555.0, 0.0, 555.0, 555.0, &white)));
     world.add(Arc::new(XYRect::new(0.0, 555.0, 0.0, 555.0, 555.0, &white)));
+
+    let box1: HittablePtr = Arc::new(Box::new(
+        &Point3::new(0.0, 0.0, 0.0),
+        &Point3::new(165.0, 330.0, 165.0),
+        &white,
+    ));
+
+    let box1: HittablePtr = Arc::new(RotateY::new(&box1, 15.0));
+    let box1: HittablePtr = Arc::new(Translate::new(&box1, &Vec3::new(265.0, 0.0, 295.0)));
+
+    world.add(box1);
+
+    let box2: HittablePtr = Arc::new(Box::new(
+        &Point3::new(0.0, 0.0, 0.0),
+        &Point3::new(168.0, 165.0, 165.0),
+        &white,
+    ));
+
+    let box2: HittablePtr = Arc::new(RotateY::new(&box2, -18.0));
+    let box2: HittablePtr = Arc::new(Translate::new(&box2, &Vec3::new(130.0, 0.0, 65.0)));
+
+    world.add(box2);
 
     world
 }
