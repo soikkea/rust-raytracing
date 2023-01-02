@@ -86,9 +86,7 @@ impl Perlin {
         let mut rng = rand::thread_rng();
         for i in (1..POINT_COUNT).rev() {
             let target = rng.gen_range(0..i);
-            let tmp = p[i];
-            p[i] = p[target];
-            p[target] = tmp;
+            p.swap(i, target);
         }
     }
 

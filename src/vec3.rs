@@ -47,7 +47,7 @@ impl Vec3 {
     }
 
     pub fn length_squared(&self) -> f64 {
-        return self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2];
+        self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2]
     }
 
     pub fn near_zero(&self) -> bool {
