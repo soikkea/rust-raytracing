@@ -14,7 +14,7 @@ use crate::{
     render::RenderConfig,
     sphere::Sphere,
     texture::{CheckerTexture, ImageTexture, NoiseTexture, TexturePtr},
-    vec3::{Color, Point3, Vec3},
+    vec3::{Color, Point3, Vec3}, constant_medium::ConstantMedium,
 };
 
 pub enum Scene {
@@ -24,6 +24,7 @@ pub enum Scene {
     Earth,
     SimpleLight,
     CornellBox,
+    CornellSmoke,
 }
 
 pub struct SceneConfig {
@@ -74,6 +75,12 @@ impl SceneConfig {
                 look_at = Point3::new(278.0, 278.0, 0.0);
                 v_fov = 40.0;
             }
+            Scene::CornellSmoke => {
+                world = cornell_smoke();
+                look_from = Point3::new(278.0, 278.0, -800.0);
+                look_at = Point3::new(278.0, 278.0, 0.0);
+                v_fov = 40.0;
+            },
         }
         let camera = Camera::new_with_time(
             look_from,
@@ -332,6 +339,47 @@ fn cornell_box() -> HittableList {
     let box2: HittablePtr = Arc::new(Translate::new(&box2, &Vec3::new(130.0, 0.0, 65.0)));
 
     world.add(box2);
+
+    world
+}
+
+fn cornell_smoke() -> HittableList {
+    let mut world = HittableList::new();
+
+    let red: MaterialPtr = Arc::new(Lambertian::new_from_color(&Color::new(0.65, 0.05, 0.05)));
+    let white: MaterialPtr = Arc::new(Lambertian::new_from_color(&Color::new(0.73, 0.73, 0.73)));
+    let green: MaterialPtr = Arc::new(Lambertian::new_from_color(&Color::new(0.12, 0.45, 0.15)));
+    let light: MaterialPtr = Arc::new(DiffuseLight::new_from_color(&Color::new(7.0, 7.0, 7.0)));
+
+    world.add(Arc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 555.0, &green)));
+    world.add(Arc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, &red)));
+    world.add(Arc::new(XZRect::new(
+        113.0, 443.0, 127.0, 432.0, 554.0, &light,
+    )));
+    world.add(Arc::new(XZRect::new(0.0, 555.0, 0.0, 555.0, 555.0, &white)));
+    world.add(Arc::new(XZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, &white)));
+    world.add(Arc::new(XYRect::new(0.0, 555.0, 0.0, 555.0, 555.0, &white)));
+
+    let box1: HittablePtr = Arc::new(Box::new(
+        &Point3::new(0.0, 0.0, 0.0),
+        &Point3::new(165.0, 330.0, 165.0),
+        &white,
+    ));
+
+    let box1: HittablePtr = Arc::new(RotateY::new(&box1, 15.0));
+    let box1: HittablePtr = Arc::new(Translate::new(&box1, &Vec3::new(265.0, 0.0, 295.0)));
+
+    let box2: HittablePtr = Arc::new(Box::new(
+        &Point3::new(0.0, 0.0, 0.0),
+        &Point3::new(168.0, 165.0, 165.0),
+        &white,
+    ));
+
+    let box2: HittablePtr = Arc::new(RotateY::new(&box2, -18.0));
+    let box2: HittablePtr = Arc::new(Translate::new(&box2, &Vec3::new(130.0, 0.0, 65.0)));
+
+    world.add(Arc::new(ConstantMedium::new_from_color(&box1, 0.01, Color::new(0.0, 0.0, 0.0))));
+    world.add(Arc::new(ConstantMedium::new_from_color(&box2, 0.01, Color::new(1.0, 1.0, 1.0))));
 
     world
 }

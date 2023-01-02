@@ -267,5 +267,11 @@ impl ops::IndexMut<usize> for Vec3 {
     }
 }
 
+impl std::fmt::Display for Vec3 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} {} {}", self.e[0], self.e[1], self.e[2])
+    }
+}
+
 pub type Color = Vec3;
 pub type Point3 = Vec3;

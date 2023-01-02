@@ -4,7 +4,7 @@ use crate::{
     hittable::{self, HitRecord},
     ray::{self, Ray},
     texture::{SolidColor, TexturePtr},
-    vec3::{self, Color, Point3},
+    vec3::{self, random_in_unit_sphere, Color, Point3},
 };
 
 pub struct ScatterResult {
@@ -163,5 +163,33 @@ impl Material for DiffuseLight {
 
     fn scatter(&self, _ray_in: &Ray, _rec: &HitRecord) -> Option<ScatterResult> {
         None
+    }
+}
+
+pub struct Isotropic {
+    albedo: TexturePtr,
+}
+
+impl Isotropic {
+    pub fn new(albedo: &TexturePtr) -> Isotropic {
+        Isotropic {
+            albedo: Arc::clone(albedo),
+        }
+    }
+
+    pub fn new_from_color(color: &vec3::Color) -> Isotropic {
+        let texture: TexturePtr = Arc::new(SolidColor::new(*color));
+        Isotropic::new(&texture)
+    }
+}
+
+impl Material for Isotropic {
+    fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<ScatterResult> {
+        let scattered = Ray::new(rec.p, random_in_unit_sphere(), ray_in.time);
+        let attenuation = self.albedo.value(rec.u, rec.v, &rec.p);
+        Some(ScatterResult {
+            attenuation,
+            scattered,
+        })
     }
 }

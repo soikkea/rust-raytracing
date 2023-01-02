@@ -7,6 +7,7 @@ pub mod box_struct;
 pub mod bvh;
 pub mod camera;
 pub mod color;
+pub mod constant_medium;
 pub mod hittable;
 pub mod hittable_list;
 pub mod material;
@@ -35,7 +36,7 @@ fn main() {
         200,
         50,
         file_name,
-        scenes::Scene::CornellBox,
+        scenes::Scene::CornellSmoke,
     );
 
     if let Err(e) = render::render_and_save(config) {
