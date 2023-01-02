@@ -5,6 +5,7 @@ use rand::Rng;
 use crate::{
     aabb::AABB,
     hittable::{HitRecord, Hittable, HittablePtr},
+    hittable_list::HittableList,
     ray::Ray,
 };
 
@@ -72,6 +73,10 @@ impl BVHNode {
             right,
             bounding_box,
         }
+    }
+
+    pub fn from_hittable_list(list: &HittableList, time0: f64, time1: f64) -> BVHNode {
+        BVHNode::new(&list.objects, time0, time1)
     }
 }
 
