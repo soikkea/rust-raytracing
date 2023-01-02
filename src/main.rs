@@ -30,14 +30,9 @@ fn main() {
         None => String::from("image.png"),
     };
 
-    let config = render::RenderConfig::with_aspec_ratio(
-        600,
-        1.0,
-        200,
-        50,
-        file_name,
-        scenes::Scene::CornellSmoke,
-    );
+    let mut config = render::RenderConfig::new(file_name, scenes::Scene::FinalScene);
+
+    config.scene.samples_per_pixel = 10;
 
     if let Err(e) = render::render_and_save(config) {
         eprintln!("Error: {e}");

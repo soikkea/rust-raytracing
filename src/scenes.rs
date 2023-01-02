@@ -13,7 +13,6 @@ use crate::{
     hittable_list::HittableList,
     material::{Dielectric, DiffuseLight, Lambertian, Material, MaterialPtr, Metal},
     moving_sphere::MovingSphere,
-    render::RenderConfig,
     sphere::Sphere,
     texture::{CheckerTexture, ImageTexture, NoiseTexture, TexturePtr},
     vec3::{Color, Point3, Vec3},
@@ -34,10 +33,14 @@ pub struct SceneConfig {
     pub camera: Camera,
     pub world: HittableList,
     pub background: Background,
+    pub image_width: u32,
+    pub aspect_ratio: f64,
+    pub samples_per_pixel: u32,
+    pub max_depth: u32,
 }
 
 impl SceneConfig {
-    pub fn get_scene(config: &RenderConfig) -> SceneConfig {
+    pub fn get_scene(scene: Scene) -> SceneConfig {
         let v_up = Vec3::new(0.0, 1.0, 0.0);
         let mut v_fov = 20.0;
         let mut aperture = 0.0;
@@ -48,7 +51,12 @@ impl SceneConfig {
         let world;
         let focus_dist = 10.0;
         let mut background = Background::Solid(Color::origin());
-        match &config.scene {
+
+        let mut image_width = 400;
+        let mut aspect_ratio = 16.0 / 9.0;
+        let mut sample_per_pixel = 100;
+        let max_depth = 50;
+        match scene {
             Scene::Random => {
                 world = random_scene();
                 background =
@@ -71,24 +79,34 @@ impl SceneConfig {
                 world = simple_light();
                 look_from = Point3::new(26.0, 3.0, 6.0);
                 look_at = Point3::new(0.0, 2.0, 0.0);
+                sample_per_pixel = 400;
             }
             Scene::CornellBox => {
                 world = cornell_box();
                 look_from = Point3::new(278.0, 278.0, -800.0);
                 look_at = Point3::new(278.0, 278.0, 0.0);
                 v_fov = 40.0;
+                aspect_ratio = 1.0;
+                image_width = 600;
+                sample_per_pixel = 200;
             }
             Scene::CornellSmoke => {
                 world = cornell_smoke();
                 look_from = Point3::new(278.0, 278.0, -800.0);
                 look_at = Point3::new(278.0, 278.0, 0.0);
                 v_fov = 40.0;
+                aspect_ratio = 1.0;
+                image_width = 600;
+                sample_per_pixel = 200;
             }
             Scene::FinalScene => {
                 world = final_scene();
                 look_from = Point3::new(478.0, 278.0, -600.0);
                 look_at = Point3::new(278.0, 278.0, 0.0);
                 v_fov = 40.0;
+                aspect_ratio = 1.0;
+                image_width = 800;
+                sample_per_pixel = 10000;
             }
         }
         let camera = Camera::new_with_time(
@@ -96,7 +114,7 @@ impl SceneConfig {
             look_at,
             v_up,
             v_fov,
-            config.aspect_ratio(),
+            aspect_ratio,
             aperture,
             focus_dist,
             time0,
@@ -106,7 +124,16 @@ impl SceneConfig {
             camera,
             world,
             background,
+            image_width,
+            aspect_ratio,
+            samples_per_pixel: sample_per_pixel,
+            max_depth,
         }
+    }
+
+    pub fn image_size(&self) -> (u32, u32) {
+        let image_height = (self.image_width as f64 / self.aspect_ratio) as u32;
+        (self.image_width, image_height)
     }
 }
 

@@ -21,42 +21,14 @@ use crate::{
 };
 
 pub struct RenderConfig {
-    pub image_width: u32,
-    pub image_height: u32,
-    pub samples_per_pixel: u32,
-    pub max_depth: u32,
     pub file_name: String,
-    pub scene: Scene,
+    pub scene: SceneConfig,
 }
 
 impl RenderConfig {
-    pub fn with_aspec_ratio(
-        image_width: u32,
-        aspect_ratio: f64,
-        samples_per_pixel: u32,
-        max_depth: u32,
-        file_name: String,
-        scene: Scene,
-    ) -> RenderConfig {
-        let image_height = ((image_width as f64) / aspect_ratio) as u32;
-        RenderConfig {
-            image_width,
-            image_height,
-            samples_per_pixel,
-            max_depth,
-            file_name,
-            scene,
-        }
-    }
-
-    pub fn to_scene(&self) -> SceneConfig {
-        SceneConfig::get_scene(self)
-    }
-}
-
-impl RenderConfig {
-    pub fn aspect_ratio(&self) -> f64 {
-        self.image_width as f64 / self.image_height as f64
+    pub fn new(file_name: String, scene: Scene) -> RenderConfig {
+        let scene = SceneConfig::get_scene(scene);
+        RenderConfig { file_name, scene }
     }
 }
 
@@ -90,16 +62,13 @@ fn ray_color(ray: &Ray, background: &Background, world: &dyn Hittable, depth: u3
     }
 }
 
-fn render(config: &RenderConfig) -> Result<image::RgbImage, RecvError> {
+fn render(scene: SceneConfig) -> Result<image::RgbImage, RecvError> {
     // Image
-    let image_width = config.image_width;
-    let image_height = config.image_height;
-    let samples_per_pixel = config.samples_per_pixel;
-    let max_depth = config.max_depth;
+    let (image_width, image_height) = scene.image_size();
+    let samples_per_pixel = scene.samples_per_pixel;
+    let max_depth = scene.max_depth;
 
     let mut image = image::RgbImage::new(image_width, image_height);
-
-    let scene = config.to_scene();
 
     // World
 
@@ -169,7 +138,7 @@ fn save_image(image: image::RgbImage, file_name: &str) -> Result<(), image::Imag
 }
 
 pub fn render_and_save(config: RenderConfig) -> Result<(), Box<dyn Error>> {
-    let image = render(&config)?;
+    let image = render(config.scene)?;
 
     save_image(image, &config.file_name)?;
 
