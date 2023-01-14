@@ -68,6 +68,12 @@ impl Vec3 {
     }
 }
 
+impl Default for Vec3 {
+    fn default() -> Self {
+        Vec3 { e: [0., 0., 0.] }
+    }
+}
+
 pub fn unit_vector(v: &Vec3) -> Vec3 {
     v / v.length()
 }

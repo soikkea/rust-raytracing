@@ -86,6 +86,20 @@ impl HitRecord {
     }
 }
 
+impl Default for HitRecord {
+    fn default() -> Self {
+        HitRecord {
+            p: vec3::Point3::origin(),
+            normal: vec3::Vec3::origin(),
+            material: None,
+            t: 0.0,
+            front_face: false,
+            u: 0.0,
+            v: 0.0,
+        }
+    }
+}
+
 pub trait Hittable: Send + Sync {
     fn hit(&self, _ray: &ray::Ray, _t_min: f64, _t_max: f64, _rec: &mut HitRecord) -> bool {
         false

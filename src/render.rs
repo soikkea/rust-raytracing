@@ -32,7 +32,7 @@ impl RenderConfig {
     }
 }
 
-fn ray_color(ray: &Ray, background: &Background, world: &dyn Hittable, depth: u32) -> Color {
+fn ray_color(ray: &Ray, background: &Background, world: &impl Hittable, depth: u32) -> Color {
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if depth == 0 {
         return Color::new(0.0, 0.0, 0.0);

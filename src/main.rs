@@ -1,22 +1,22 @@
 use std::env;
 use std::process;
 
-pub mod aabb;
-pub mod aarect;
-pub mod box_struct;
-pub mod bvh;
-pub mod camera;
+mod aabb;
+mod aarect;
+mod box_struct;
+mod bvh;
+mod camera;
 pub mod color;
 pub mod constant_medium;
-pub mod hittable;
-pub mod hittable_list;
-pub mod material;
-pub mod moving_sphere;
-pub mod perlin;
-pub mod ray;
+mod hittable;
+mod hittable_list;
+mod material;
+mod moving_sphere;
+mod perlin;
+mod ray;
 pub mod render;
 pub mod scenes;
-pub mod sphere;
+mod sphere;
 pub mod texture;
 pub mod vec3;
 
