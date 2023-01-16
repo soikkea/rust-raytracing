@@ -1,3 +1,5 @@
+use std::time::{Duration, Instant};
+
 use crate::{
     render::ThreadedRenderer,
     scenes::{Scene, SceneConfig},
@@ -6,6 +8,8 @@ use crate::{
 pub struct Gui {
     renderer: ThreadedRenderer,
     texture: Option<egui::TextureHandle>,
+    render_start_time: Option<Instant>,
+    render_time: Option<Duration>,
 }
 
 impl Default for Gui {
@@ -13,6 +17,8 @@ impl Default for Gui {
         Self {
             renderer: Default::default(),
             texture: None,
+            render_start_time: None,
+            render_time: None,
         }
     }
 }
@@ -27,6 +33,10 @@ impl eframe::App for Gui {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         if self.renderer.is_render_in_progress() {
             ctx.request_repaint();
+        } else {
+            if let Some(start) = self.render_start_time.take() {
+                self.render_time = Some(start.elapsed());
+            }
         }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
@@ -51,6 +61,10 @@ impl eframe::App for Gui {
 
             if self.renderer.is_render_in_progress() {
                 ui.spinner();
+            } else {
+                if let Some(duration) = self.render_time {
+                    ui.label(format!("Rendering took {:?}", duration));
+                }
             }
         });
 
@@ -81,6 +95,7 @@ impl Gui {
     fn start_render(&mut self, scene: Scene) {
         let scene = SceneConfig::get_scene(scene);
         self.renderer.start_render(scene);
+        self.render_start_time = Some(Instant::now());
     }
 
     fn try_load_texture(&mut self, ctx: &egui::Context) {
