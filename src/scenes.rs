@@ -18,6 +18,7 @@ use crate::{
     vec3::{Color, Point3, Vec3},
 };
 
+#[derive(Debug, PartialEq)]
 pub enum Scene {
     Random,
     TwoSpheres,
@@ -40,7 +41,7 @@ pub struct SceneConfig {
 }
 
 impl SceneConfig {
-    pub fn get_scene(scene: Scene) -> SceneConfig {
+    pub fn get_scene(scene: &Scene) -> SceneConfig {
         let v_up = Vec3::new(0.0, 1.0, 0.0);
         let mut v_fov = 20.0;
         let mut aperture = 0.0;

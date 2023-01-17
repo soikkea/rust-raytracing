@@ -29,7 +29,7 @@ pub struct RenderConfig {
 
 impl RenderConfig {
     pub fn new(file_name: String, scene: Scene) -> RenderConfig {
-        let scene = SceneConfig::get_scene(scene);
+        let scene = SceneConfig::get_scene(&scene);
         RenderConfig { file_name, scene }
     }
 }
