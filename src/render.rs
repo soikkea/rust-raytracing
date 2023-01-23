@@ -1,6 +1,7 @@
 use std::{
     error::Error,
     io::{self, Write},
+    ops::Range,
     sync::{
         mpsc::{channel, Receiver, RecvError, Sender},
         Arc,
@@ -44,6 +45,7 @@ pub struct ThreadedRenderer {
     sender: Sender<Pixel>,
     receiver: Receiver<Pixel>,
     pixel_counter: usize,
+    pub threads_to_use: usize,
 }
 
 impl Default for ThreadedRenderer {
@@ -57,6 +59,7 @@ impl Default for ThreadedRenderer {
             sender,
             receiver,
             pixel_counter: 0,
+            threads_to_use: 1,
         }
     }
 }
@@ -71,7 +74,8 @@ impl ThreadedRenderer {
         let (width, height) = scene.image_size();
         self.init_pixels(width as _, height as _);
 
-        let pool = threadpool::ThreadPool::new(num_cpus::get() - 1);
+        let num_threads = self.threads_to_use.max(1).min(num_cpus::get());
+        let pool = threadpool::ThreadPool::new(num_threads);
         render_with_threadpool(&pool, &self.sender, &scene);
         self.threadpool = Some(pool);
     }
@@ -245,28 +249,59 @@ fn render_with_threadpool(pool: &threadpool::ThreadPool, tx: &Sender<Pixel>, sce
     let max_depth = scene.max_depth;
     let background = scene.background;
 
-    for j in (0..image_height).rev() {
+    let threads = pool.max_count();
+    let ranges = divide_into_ranges(image_height, threads as _);
+    for range in ranges {
         let tx = tx.clone();
         let thread_world = Arc::clone(&world_arc);
         let thread_camera = Arc::clone(&camera_arc);
         pool.execute(move || {
-            let mut rng = rand::thread_rng();
-            for i in 0..image_width {
-                let mut pixel_color = Color::origin();
-                for _ in 0..samples_per_pixel {
-                    let u_rand: f64 = rng.gen();
-                    let v_rand: f64 = rng.gen();
-                    let u: f64 = (i as f64 + u_rand) / (image_width - 1) as f64;
-                    let v: f64 = (j as f64 + v_rand) / (image_height - 1) as f64;
-                    let ray = thread_camera.get_ray(u, v);
-                    pixel_color += ray_color(&ray, &background, thread_world.as_ref(), max_depth);
+            for j in range.rev() {
+                let mut rng = rand::thread_rng();
+                for i in 0..image_width {
+                    let mut pixel_color = Color::origin();
+                    for _ in 0..samples_per_pixel {
+                        let u_rand: f64 = rng.gen();
+                        let v_rand: f64 = rng.gen();
+                        let u: f64 = (i as f64 + u_rand) / (image_width - 1) as f64;
+                        let v: f64 = (j as f64 + v_rand) / (image_height - 1) as f64;
+                        let ray = thread_camera.get_ray(u, v);
+                        pixel_color +=
+                            ray_color(&ray, &background, thread_world.as_ref(), max_depth);
+                    }
+                    let pixel = color::color_to_pixel(pixel_color, samples_per_pixel);
+                    let y = image_height - 1 - j;
+                    tx.send((i, y, pixel)).expect("Could not send data!");
                 }
-                let pixel = color::color_to_pixel(pixel_color, samples_per_pixel);
-                let y = image_height - 1 - j;
-                tx.send((i, y, pixel)).expect("Could not send data!");
             }
         });
     }
+}
+
+fn divide_into_ranges(rows: u32, ranges: u32) -> Vec<Range<u32>> {
+    let mut results: Vec<Range<u32>> = Vec::new();
+    if rows == 0 {
+        results.push(1..0);
+    } else if rows <= ranges {
+        for i in 0..rows {
+            results.push(i..(i + 1));
+        }
+    } else {
+        let group_size = rows / ranges;
+        let mut remain = rows % ranges;
+        let mut start;
+        let mut end = 0;
+        for _ in 0..ranges {
+            start = end;
+            end = start + group_size;
+            if remain > 0 {
+                end += 1;
+                remain -= 1;
+            }
+            results.push(start..end);
+        }
+    }
+    return results;
 }
 
 fn save_image(image: image::RgbImage, file_name: &str) -> Result<(), image::ImageError> {

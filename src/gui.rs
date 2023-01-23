@@ -11,6 +11,7 @@ pub struct Gui {
     render_start_time: Option<Instant>,
     render_time: Option<Duration>,
     scene: Scene,
+    num_cpus: usize,
 }
 
 impl Default for Gui {
@@ -21,13 +22,17 @@ impl Default for Gui {
             render_start_time: None,
             render_time: None,
             scene: Scene::Random,
+            num_cpus: 1,
         }
     }
 }
 
 impl Gui {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
-        Default::default()
+        Self {
+            num_cpus: num_cpus::get(),
+            ..Default::default()
+        }
     }
 }
 
@@ -112,6 +117,10 @@ impl Gui {
                 ui.selectable_value(&mut self.scene, Scene::CornellSmoke, "CornellSmoke");
                 ui.selectable_value(&mut self.scene, Scene::FinalScene, "FinalScene");
             });
+
+        ui.add(
+            egui::Slider::new(&mut self.renderer.threads_to_use, 1..=self.num_cpus).text("Threads"),
+        );
 
         if ui.button("Render").clicked() {
             self.start_render();
