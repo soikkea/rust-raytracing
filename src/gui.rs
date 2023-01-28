@@ -135,6 +135,26 @@ impl Gui {
             if let Some(duration) = self.render_time {
                 ui.label(format!("Rendering took {:?}", duration));
             }
+            if self.renderer.is_render_finished() {
+                if ui.button("Save...").clicked() {
+                    self.save_current_image();
+                }
+            }
+        }
+    }
+
+    fn save_current_image(&self) {
+        let file = rfd::FileDialog::new()
+            .add_filter("png", &["png"])
+            .add_filter("jpg", &["jpg"])
+            .add_filter("ppm", &["ppm"])
+            .save_file();
+
+        if let Some(path) = file {
+            let image = self.renderer.get_image();
+            if let Some(image) = image {
+                let _ = image.save(path);
+            }
         }
     }
 }

@@ -120,7 +120,14 @@ impl ThreadedRenderer {
         [self.image_width, self.image_height]
     }
 
-    fn is_render_finished(&self) -> bool {
+    pub fn get_image(&self) -> Option<image::RgbaImage> {
+        let mut image_vec = Vec::new();
+        image_vec.extend_from_slice(self.pixels.as_ref());
+
+        image::RgbaImage::from_vec(self.image_width as _, self.image_height as _, image_vec)
+    }
+
+    pub fn is_render_finished(&self) -> bool {
         self.pixel_counter >= self.image_height * self.image_width
     }
 
