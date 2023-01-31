@@ -2,6 +2,7 @@ use std::{
     error::Error,
     io::{self, Write},
     ops::Range,
+    path::{Path, PathBuf},
     sync::{
         mpsc::{channel, Receiver, RecvError, Sender},
         Arc,
@@ -24,12 +25,12 @@ use crate::{
 };
 
 pub struct RenderConfig {
-    pub file_name: String,
+    pub file_name: PathBuf,
     pub scene: SceneConfig,
 }
 
 impl RenderConfig {
-    pub fn new(file_name: String, scene: Scene) -> RenderConfig {
+    pub fn new(file_name: PathBuf, scene: Scene) -> RenderConfig {
         let scene = SceneConfig::get_scene(&scene);
         RenderConfig { file_name, scene }
     }
@@ -311,7 +312,7 @@ fn divide_into_ranges(rows: u32, ranges: u32) -> Vec<Range<u32>> {
     return results;
 }
 
-fn save_image(image: image::RgbImage, file_name: &str) -> Result<(), image::ImageError> {
+fn save_image(image: image::RgbImage, file_name: &Path) -> Result<(), image::ImageError> {
     image.save(file_name)?;
     Ok(())
 }

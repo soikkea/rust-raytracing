@@ -1,13 +1,16 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 
-use std::env;
 use std::process;
+
+use clap::Parser;
+use cli::Cli;
 
 mod aabb;
 mod aarect;
 mod box_struct;
 mod bvh;
 mod camera;
+mod cli;
 pub mod color;
 pub mod constant_medium;
 mod gui;
@@ -24,30 +27,31 @@ pub mod texture;
 pub mod vec3;
 
 fn main() {
+    let cli = Cli::parse();
+
+    if let Some(_) = cli.output.as_deref() {
+        run_terminal(cli);
+    } else {
+        run_gui();
+    }
+}
+
+fn run_terminal(args: Cli) {
+    let file_name = args.output.expect("Should have output");
+
+    let config = render::RenderConfig::new(file_name, scenes::Scene::Random);
+
+    if let Err(e) = render::render_and_save(config) {
+        eprintln!("Error: {e}");
+        process::exit(1);
+    }
+}
+
+fn run_gui() {
     let native_options = eframe::NativeOptions::default();
     eframe::run_native(
         "Raytracer",
         native_options,
         Box::new(|cc| Box::new(gui::Gui::new(cc))),
     )
-}
-
-fn run_terminal() {
-    let mut args = env::args();
-
-    // Skip first argument
-    args.next();
-    let file_name = match args.next() {
-        Some(arg) => arg,
-        None => String::from("image.png"),
-    };
-
-    let mut config = render::RenderConfig::new(file_name, scenes::Scene::FinalScene);
-
-    config.scene.samples_per_pixel = 10;
-
-    if let Err(e) = render::render_and_save(config) {
-        eprintln!("Error: {e}");
-        process::exit(1);
-    }
 }
