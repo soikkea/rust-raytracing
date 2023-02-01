@@ -18,7 +18,7 @@ use crate::{
     vec3::{Color, Point3, Vec3},
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, clap::ValueEnum)]
 pub enum Scene {
     Random,
     TwoSpheres,

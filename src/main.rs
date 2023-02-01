@@ -1,5 +1,3 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
-
 use std::process;
 
 use clap::Parser;
@@ -29,17 +27,17 @@ pub mod vec3;
 fn main() {
     let cli = Cli::parse();
 
-    if let Some(_) = cli.output.as_deref() {
-        run_terminal(cli);
-    } else {
-        run_gui();
+    match cli {
+        Cli { no_gui: true, .. } => run_terminal(cli),
+        _ => run_gui(),
     }
 }
 
 fn run_terminal(args: Cli) {
     let file_name = args.output.expect("Should have output");
+    let scene = args.scene.expect("Scene is required");
 
-    let config = render::RenderConfig::new(file_name, scenes::Scene::Random);
+    let config = render::RenderConfig::new(file_name, scene);
 
     if let Err(e) = render::render_and_save(config) {
         eprintln!("Error: {e}");
