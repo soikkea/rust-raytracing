@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    aabb::AABB,
+    aabb::Aabb,
     hittable::{HitRecord, Hittable},
     material::MaterialPtr,
     ray::Ray,
@@ -73,11 +73,11 @@ impl YZRect {
 }
 
 impl Hittable for XYRect {
-    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<Aabb> {
         // The bounding box must have non-zero width in each dimension,
         // so pad the Z dimension a small amount.
         let padding = 0.0001;
-        let output_box = AABB::new(
+        let output_box = Aabb::new(
             Point3::new(self.x0, self.y0, self.k - padding),
             Point3::new(self.x1, self.y1, self.k + padding),
         );
@@ -108,11 +108,11 @@ impl Hittable for XYRect {
 }
 
 impl Hittable for XZRect {
-    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<Aabb> {
         // The bounding box must have non-zero width in each dimension,
         // so pad the Y dimension a small amount.
         let padding = 0.0001;
-        let output_box = AABB::new(
+        let output_box = Aabb::new(
             Point3::new(self.x0, self.k - padding, self.z0),
             Point3::new(self.x1, self.k + padding, self.z1),
         );
@@ -143,11 +143,11 @@ impl Hittable for XZRect {
 }
 
 impl Hittable for YZRect {
-    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<Aabb> {
         // The bounding box must have non-zero width in each dimension,
         // so pad the X dimension a small amount.
         let padding = 0.0001;
-        let output_box = AABB::new(
+        let output_box = Aabb::new(
             Point3::new(self.k - padding, self.y0, self.z0),
             Point3::new(self.k + padding, self.y1, self.z1),
         );

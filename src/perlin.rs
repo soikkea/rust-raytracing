@@ -39,6 +39,7 @@ impl Perlin {
 
         let mut c: Vec<Vec<Vec<Vec3>>> = vec![vec![vec![Vec3::origin(); 2]; 2]; 2];
 
+        #[allow(clippy::needless_range_loop)]
         for di in 0..2 {
             for dj in 0..2 {
                 for dk in 0..2 {
@@ -73,6 +74,7 @@ impl Perlin {
     fn perlin_generate_perm() -> [i32; POINT_COUNT] {
         let mut p: [i32; POINT_COUNT] = [0; POINT_COUNT];
 
+        #[allow(clippy::needless_range_loop)]
         for i in 0..POINT_COUNT {
             p[i] = i as i32;
         }
@@ -93,6 +95,7 @@ impl Perlin {
     fn _trilinear_intepolation(c: &[[[f64; 2]; 2]; 2], u: f64, v: f64, w: f64) -> f64 {
         let mut accum = 0.0;
 
+        #[allow(clippy::needless_range_loop)]
         for i in 0..2 {
             let i_f = i as f64;
             for j in 0..2 {
@@ -110,12 +113,13 @@ impl Perlin {
         accum
     }
 
-    fn perlin_interpolation(c: &Vec<Vec<Vec<Vec3>>>, u: f64, v: f64, w: f64) -> f64 {
+    fn perlin_interpolation(c: &[Vec<Vec<Vec3>>], u: f64, v: f64, w: f64) -> f64 {
         let uu = u * u * (3.0 - 2.0 * u);
         let vv = v * v * (3.0 - 2.0 * v);
         let ww = w * w * (3.0 - 2.0 * w);
         let mut accum = 0.0;
 
+        #[allow(clippy::needless_range_loop)]
         for i in 0..2 {
             let i_f = i as f64;
             for j in 0..2 {
@@ -132,5 +136,11 @@ impl Perlin {
         }
 
         accum
+    }
+}
+
+impl Default for Perlin {
+    fn default() -> Self {
+        Self::new()
     }
 }

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    aabb::AABB,
+    aabb::Aabb,
     material,
     ray::{self, Ray},
     vec3::{self, Point3, Vec3},
@@ -105,7 +105,7 @@ pub trait Hittable: Send + Sync {
         false
     }
 
-    fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB>;
+    fn bounding_box(&self, time0: f64, time1: f64) -> Option<Aabb>;
 }
 
 pub type HittablePtr = Arc<dyn Hittable>;
@@ -124,10 +124,10 @@ impl Translate {
 }
 
 impl Hittable for Translate {
-    fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB> {
+    fn bounding_box(&self, time0: f64, time1: f64) -> Option<Aabb> {
         match self.hittable.bounding_box(time0, time1) {
             Some(output_box) => {
-                let output_box = AABB::new(
+                let output_box = Aabb::new(
                     output_box.min() + self.offset,
                     output_box.max() + self.offset,
                 );
@@ -155,7 +155,7 @@ pub struct RotateY {
     hittable: HittablePtr,
     sin_theta: f64,
     cos_theta: f64,
-    bounding_box: Option<AABB>,
+    bounding_box: Option<Aabb>,
 }
 
 impl RotateY {
@@ -167,7 +167,7 @@ impl RotateY {
 
         let bbox = match bounding_box {
             Some(aabb) => aabb,
-            None => AABB::empty(),
+            None => Aabb::empty(),
         };
 
         let mut min = Point3::new(f64::INFINITY, f64::INFINITY, f64::INFINITY);
@@ -193,7 +193,7 @@ impl RotateY {
         }
 
         if bounding_box.is_some() {
-            bounding_box = Some(AABB::new(min, max));
+            bounding_box = Some(Aabb::new(min, max));
         }
 
         RotateY {
@@ -206,7 +206,7 @@ impl RotateY {
 }
 
 impl Hittable for RotateY {
-    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<Aabb> {
         self.bounding_box
     }
 

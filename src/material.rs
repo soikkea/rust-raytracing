@@ -76,7 +76,7 @@ impl Material for Metal {
         let reflected = vec3::reflect(&vec3::unit_vector(&ray_in.direction), &rec.normal);
         let scattered = ray::Ray::new(
             rec.p,
-            reflected + self.fuzz * &vec3::random_in_unit_sphere(),
+            reflected + self.fuzz * vec3::random_in_unit_sphere(),
             ray_in.time,
         );
         if scattered.direction.dot(&rec.normal) > 0.0 {

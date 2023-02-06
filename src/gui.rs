@@ -40,10 +40,8 @@ impl eframe::App for Gui {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         if self.renderer.is_render_in_progress() {
             ctx.request_repaint();
-        } else {
-            if let Some(start) = self.render_start_time.take() {
-                self.render_time = Some(start.elapsed());
-            }
+        } else if let Some(start) = self.render_start_time.take() {
+            self.render_time = Some(start.elapsed());
         }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
@@ -135,10 +133,8 @@ impl Gui {
             if let Some(duration) = self.render_time {
                 ui.label(format!("Rendering took {:?}", duration));
             }
-            if self.renderer.is_render_finished() {
-                if ui.button("Save...").clicked() {
-                    self.save_current_image();
-                }
+            if self.renderer.is_render_finished() && ui.button("Save...").clicked() {
+                self.save_current_image();
             }
         }
     }

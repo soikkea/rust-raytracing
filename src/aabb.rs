@@ -1,22 +1,22 @@
 use crate::{ray::Ray, vec3::Point3};
 
 #[derive(Copy, Clone)]
-pub struct AABB {
+pub struct Aabb {
     minimum: Point3,
     maximum: Point3,
 }
 
-impl AABB {
-    pub fn empty() -> AABB {
+impl Aabb {
+    pub fn empty() -> Aabb {
         let point = Point3::new(0.0, 0.0, 0.0);
-        AABB {
+        Aabb {
             minimum: point,
             maximum: point,
         }
     }
 
-    pub fn new(minimum: Point3, maximum: Point3) -> AABB {
-        AABB { minimum, maximum }
+    pub fn new(minimum: Point3, maximum: Point3) -> Aabb {
+        Aabb { minimum, maximum }
     }
 
     pub fn min(&self) -> &Point3 {
@@ -45,7 +45,7 @@ impl AABB {
         true
     }
 
-    pub fn surrounding_box(&self, other: &AABB) -> AABB {
+    pub fn surrounding_box(&self, other: &Aabb) -> Aabb {
         let small = Point3::new(
             self.min().x().min(other.min().x()),
             self.min().y().min(other.min().y()),
@@ -57,7 +57,7 @@ impl AABB {
             self.max().z().max(other.max().z()),
         );
 
-        AABB::new(small, big)
+        Aabb::new(small, big)
     }
 }
 
@@ -71,7 +71,7 @@ mod tests {
     fn test_aabb_hit() {
         let minimum = Vec3::origin();
         let maximum = Vec3::new(1.0, 1.0, 1.0);
-        let aabb = AABB::new(minimum, maximum);
+        let aabb = Aabb::new(minimum, maximum);
 
         let origin = Vec3::new(0.5, -0.5, 0.5);
         let direction = Vec3::new(0.0, 1.0, 0.0);

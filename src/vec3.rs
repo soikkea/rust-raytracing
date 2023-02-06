@@ -121,7 +121,7 @@ pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
     r_out_perp + r_out_parallel
 }
 
-impl ops::Add for &Vec3 {
+impl ops::Add for Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -133,11 +133,11 @@ impl ops::Add for &Vec3 {
     }
 }
 
-impl ops::Add for Vec3 {
+impl ops::Add for &Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Self) -> Self::Output {
-        &self + &rhs
+        *self + *rhs
     }
 }
 
@@ -145,11 +145,11 @@ impl ops::Add<Vec3> for &Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Vec3) -> Self::Output {
-        self + &rhs
+        *self + rhs
     }
 }
 
-impl ops::Sub for &Vec3 {
+impl ops::Sub for Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -161,11 +161,11 @@ impl ops::Sub for &Vec3 {
     }
 }
 
-impl ops::Sub for Vec3 {
+impl ops::Sub for &Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        &self - rhs
+        *self - *rhs
     }
 }
 
@@ -173,7 +173,7 @@ impl ops::Sub<&Vec3> for Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: &Vec3) -> Self::Output {
-        &self - rhs
+        self - *rhs
     }
 }
 
@@ -181,7 +181,7 @@ impl ops::Sub<Vec3> for &Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: Vec3) -> Self::Output {
-        self - &rhs
+        *self - rhs
     }
 }
 

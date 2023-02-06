@@ -1,7 +1,5 @@
-
-
 use crate::{
-    aabb::AABB,
+    aabb::Aabb,
     hittable::{HitRecord, Hittable, HittablePtr},
 };
 
@@ -18,6 +16,12 @@ impl HittableList {
 
     pub fn add(&mut self, object: HittablePtr) {
         self.objects.push(object);
+    }
+}
+
+impl Default for HittableList {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -38,12 +42,12 @@ impl Hittable for HittableList {
         hit_anything
     }
 
-    fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB> {
+    fn bounding_box(&self, time0: f64, time1: f64) -> Option<Aabb> {
         if self.objects.is_empty() {
             return None;
         }
 
-        let mut output: Option<AABB> = None;
+        let mut output: Option<Aabb> = None;
 
         for object in &self.objects {
             match object.bounding_box(time0, time1) {

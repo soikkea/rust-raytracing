@@ -1,7 +1,7 @@
 use std::{f64::consts::PI, sync::Arc};
 
 use crate::{
-    aabb::AABB,
+    aabb::Aabb,
     hittable, material,
     vec3::{Point3, Vec3},
 };
@@ -42,7 +42,7 @@ impl hittable::Hittable for Sphere {
         t_max: f64,
         rec: &mut hittable::HitRecord,
     ) -> bool {
-        let oc = &ray.origin - &self.center;
+        let oc = ray.origin - self.center;
         let a = ray.direction.length_squared();
         let half_b = oc.dot(&ray.direction);
         let c = oc.length_squared() - self.radius * self.radius;
@@ -72,8 +72,8 @@ impl hittable::Hittable for Sphere {
         true
     }
 
-    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
-        let output_box = AABB::new(
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<Aabb> {
+        let output_box = Aabb::new(
             self.center - Vec3::new(self.radius, self.radius, self.radius),
             self.center + Vec3::new(self.radius, self.radius, self.radius),
         );

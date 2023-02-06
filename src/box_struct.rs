@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    aabb::AABB,
+    aabb::Aabb,
     aarect::{XYRect, XZRect, YZRect},
     hittable::Hittable,
     hittable_list::HittableList,
@@ -79,8 +79,8 @@ impl Box {
 }
 
 impl Hittable for Box {
-    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<crate::aabb::AABB> {
-        Some(AABB::new(self.min, self.max))
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<crate::aabb::Aabb> {
+        Some(Aabb::new(self.min, self.max))
     }
 
     fn hit(

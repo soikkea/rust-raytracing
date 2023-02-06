@@ -67,7 +67,7 @@ impl Default for ThreadedRenderer {
 
 impl ThreadedRenderer {
     pub fn start_render(&mut self, scene: SceneConfig) {
-        if let Some(_) = self.threadpool {
+        if self.threadpool.is_some() {
             eprintln!("Render already in progress...");
             return;
         }
@@ -75,17 +75,15 @@ impl ThreadedRenderer {
         let (width, height) = scene.image_size();
         self.init_pixels(width as _, height as _);
 
-        let num_threads = self.threads_to_use.max(1).min(num_cpus::get());
+        let num_threads = self.threads_to_use.clamp(1, num_cpus::get());
         let pool = threadpool::ThreadPool::new(num_threads);
         render_with_threadpool(&pool, &self.sender, &scene);
         self.threadpool = Some(pool);
     }
 
     pub fn check_progress(&mut self) -> bool {
-        if let Some(_) = &self.threadpool {
-            if self.is_render_finished() {
-                self.threadpool.take();
-            }
+        if self.threadpool.is_some() && self.is_render_finished() {
+            self.threadpool.take();
         }
 
         let mut new_pixels: Vec<Pixel> = Vec::new();
@@ -289,7 +287,7 @@ fn render_with_threadpool(pool: &threadpool::ThreadPool, tx: &Sender<Pixel>, sce
 fn divide_into_ranges(rows: u32, ranges: u32) -> Vec<Range<u32>> {
     let mut results: Vec<Range<u32>> = Vec::new();
     if rows == 0 {
-        results.push(1..0);
+        results.push(0..0);
     } else if rows <= ranges {
         for i in 0..rows {
             results.push(i..(i + 1));
@@ -309,7 +307,7 @@ fn divide_into_ranges(rows: u32, ranges: u32) -> Vec<Range<u32>> {
             results.push(start..end);
         }
     }
-    return results;
+    results
 }
 
 fn save_image(image: image::RgbImage, file_name: &Path) -> Result<(), image::ImageError> {

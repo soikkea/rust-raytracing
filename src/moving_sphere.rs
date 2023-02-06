@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    aabb::AABB,
+    aabb::Aabb,
     hittable, material, ray,
     vec3::{Point3, Vec3},
 };
@@ -42,7 +42,7 @@ impl MovingSphere {
 
 impl hittable::Hittable for MovingSphere {
     fn hit(&self, ray: &ray::Ray, t_min: f64, t_max: f64, rec: &mut hittable::HitRecord) -> bool {
-        let oc = &ray.origin - &self.center(ray.time);
+        let oc = ray.origin - self.center(ray.time);
         let a = ray.direction.length_squared();
         let half_b = oc.dot(&ray.direction);
         let c = oc.length_squared() - self.radius * self.radius;
@@ -71,12 +71,12 @@ impl hittable::Hittable for MovingSphere {
         true
     }
 
-    fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB> {
-        let box0 = AABB::new(
+    fn bounding_box(&self, time0: f64, time1: f64) -> Option<Aabb> {
+        let box0 = Aabb::new(
             self.center(time0) - Vec3::new(self.radius, self.radius, self.radius),
             self.center(time0) + Vec3::new(self.radius, self.radius, self.radius),
         );
-        let box1 = AABB::new(
+        let box1 = Aabb::new(
             self.center(time1) - Vec3::new(self.radius, self.radius, self.radius),
             self.center(time1) + Vec3::new(self.radius, self.radius, self.radius),
         );

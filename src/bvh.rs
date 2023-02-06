@@ -3,7 +3,7 @@ use std::sync::Arc;
 use rand::Rng;
 
 use crate::{
-    aabb::AABB,
+    aabb::Aabb,
     hittable::{HitRecord, Hittable, HittablePtr},
     hittable_list::HittableList,
     ray::Ray,
@@ -12,7 +12,7 @@ use crate::{
 pub struct BVHNode {
     pub left: HittablePtr,
     pub right: HittablePtr,
-    pub bounding_box: AABB,
+    pub bounding_box: Aabb,
 }
 
 impl BVHNode {
@@ -65,8 +65,8 @@ impl BVHNode {
         }
 
         let bounding_box = box_left
-            .unwrap_or_else(AABB::empty)
-            .surrounding_box(&box_right.unwrap_or_else(AABB::empty));
+            .unwrap_or_else(Aabb::empty)
+            .surrounding_box(&box_right.unwrap_or_else(Aabb::empty));
 
         BVHNode {
             left,
@@ -118,7 +118,7 @@ impl Hittable for BVHNode {
         hit_left || hit_right
     }
 
-    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<Aabb> {
         Some(self.bounding_box)
     }
 }

@@ -17,29 +17,8 @@ pub struct Camera {
 }
 
 impl Camera {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
-        look_from: vec3::Point3,
-        look_at: vec3::Point3,
-        v_up: vec3::Vec3,
-        vfov_degrees: f64,
-        aspect_ratio: f64,
-        aperture: f64,
-        focus_dist: f64,
-    ) -> Camera {
-        Camera::new_with_time(
-            look_from,
-            look_at,
-            v_up,
-            vfov_degrees,
-            aspect_ratio,
-            aperture,
-            focus_dist,
-            0.0,
-            0.0,
-        )
-    }
-
-    pub fn new_with_time(
         look_from: vec3::Point3,
         look_at: vec3::Point3,
         v_up: vec3::Vec3,
@@ -62,7 +41,7 @@ impl Camera {
         let origin = look_from;
         let horizontal = focus_dist * viewport_width * u;
         let vertical = focus_dist * viewport_height * v;
-        let lower_left_corner = &origin - &horizontal / 2.0 - &vertical / 2.0 - focus_dist * w;
+        let lower_left_corner = origin - &horizontal / 2.0 - &vertical / 2.0 - focus_dist * w;
 
         let lens_radius = aperture / 2.0;
 
@@ -84,13 +63,12 @@ impl Camera {
         let rd = self.lens_radius * vec3::random_in_unit_disk();
         let offset = self.u * rd.x() + self.v * rd.y();
 
-        let direction = &self.lower_left_corner + s * self.horizontal + t * self.vertical
-            - &self.origin
-            - offset;
+        let direction =
+            self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset;
 
         let mut rng = rand::thread_rng();
         let time = rng.gen_range(self.shutter_open_time..self.shutter_close_time);
-        ray::Ray::new(&self.origin + offset, direction, time)
+        ray::Ray::new(self.origin + offset, direction, time)
     }
 
     pub fn w(&self) -> &vec3::Vec3 {

@@ -34,7 +34,7 @@ impl ConstantMedium {
 }
 
 impl Hittable for ConstantMedium {
-    fn bounding_box(&self, time0: f64, time1: f64) -> Option<crate::aabb::AABB> {
+    fn bounding_box(&self, time0: f64, time1: f64) -> Option<crate::aabb::Aabb> {
         self.boundary.bounding_box(time0, time1)
     }
 

@@ -110,7 +110,7 @@ impl SceneConfig {
                 sample_per_pixel = 10000;
             }
         }
-        let camera = Camera::new_with_time(
+        let camera = Camera::new(
             look_from,
             look_at,
             v_up,
