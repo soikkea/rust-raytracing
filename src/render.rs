@@ -177,56 +177,16 @@ fn ray_color(ray: &Ray, background: &Background, world: &impl Hittable, depth: u
 }
 
 fn render(scene: SceneConfig) -> Result<image::RgbImage, RecvError> {
-    // Image
     let (image_width, image_height) = scene.image_size();
-    let samples_per_pixel = scene.samples_per_pixel;
-    let max_depth = scene.max_depth;
 
     let mut image = image::RgbImage::new(image_width, image_height);
-
-    // World
-
-    let world = scene.world;
-    let bvh = BVHNode::new(&world.objects, 0.0, 1.0);
-
-    // Camera
-
-    let camera = scene.camera;
-
-    // Render
 
     let pool = threadpool::ThreadPool::new(num_cpus::get() - 1);
     let (tx, rx) = channel();
 
-    //let world_arc = Arc::new(world);
-    let world_arc = Arc::new(bvh);
-    let camera_arc = Arc::new(camera);
-
     let start = Instant::now();
 
-    for j in (0..image_height).rev() {
-        let tx = tx.clone();
-        let thread_world = Arc::clone(&world_arc);
-        let thread_camera = Arc::clone(&camera_arc);
-        pool.execute(move || {
-            let mut rng = rand::thread_rng();
-            for i in 0..image_width {
-                let mut pixel_color = Color::origin();
-                for _ in 0..samples_per_pixel {
-                    let u_rand: f64 = rng.gen();
-                    let v_rand: f64 = rng.gen();
-                    let u: f64 = (i as f64 + u_rand) / (image_width - 1) as f64;
-                    let v: f64 = (j as f64 + v_rand) / (image_height - 1) as f64;
-                    let ray = thread_camera.get_ray(u, v);
-                    pixel_color +=
-                        ray_color(&ray, &scene.background, thread_world.as_ref(), max_depth);
-                }
-                let pixel = color::color_to_pixel(pixel_color, samples_per_pixel);
-                let y = image_height - 1 - j;
-                tx.send((i, y, pixel)).expect("Could not send data!");
-            }
-        });
-    }
+    render_with_threadpool(&pool, &tx, &scene);
 
     let mut lines_done = 0;
     for i in 0..(image_width * image_height) {

@@ -54,12 +54,6 @@ impl eframe::App for Gui {
             })
         });
 
-        egui::SidePanel::right("side_panel").show(ctx, |ui| {
-            ui.add_enabled_ui(!self.renderer.is_render_in_progress(), |ui| {
-                self.side_panel(ui);
-            })
-        });
-
         let margin = egui::style::Margin::same(0.0);
 
         let frame = egui::Frame {
@@ -80,6 +74,12 @@ impl eframe::App for Gui {
                     ui.spinner();
                 }
             });
+
+        egui::SidePanel::right("side_panel").show(ctx, |ui| {
+            ui.add_enabled_ui(!self.renderer.is_render_in_progress(), |ui| {
+                self.side_panel(ui);
+            })
+        });
     }
 }
 
