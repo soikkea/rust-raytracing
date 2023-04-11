@@ -8,10 +8,12 @@ edition = "2021"
 [dependencies]
 rand = "0.8.5"
 rand_pcg = "0.3.1"
-image = "0.24.5"
+image = "0.24.6"
 threadpool = "1.8.1"
 num_cpus = "1.15.0"
 egui = "0.20.1"
 eframe = "0.20.1"
 rfd = "0.10.0"
 clap = { version = "4.1.4", features = ["derive"] }
+# To fix vulnerability
+spin = "0.9.8"
