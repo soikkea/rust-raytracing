@@ -17,3 +17,4 @@ rfd = "0.10.0"
 clap = { version = "4.1.4", features = ["derive"] }
 # To fix vulnerability
 spin = "0.9.8"
+xml-rs = "~0.8.14"
