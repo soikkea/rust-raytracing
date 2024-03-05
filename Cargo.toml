@@ -11,11 +11,7 @@ rand_pcg = "0.3.1"
 image = "0.24.6"
 threadpool = "1.8.1"
 num_cpus = "1.15.0"
-egui = "0.20.1"
-eframe = "0.20.1"
+egui = "0.26.2"
+eframe = "0.26.2"
 rfd = "0.10.0"
 clap = { version = "4.1.4", features = ["derive"] }
-# To fix vulnerability
-spin = "0.9.8"
-xml-rs = "~0.8.14"
-rustix = "~0.36.16"

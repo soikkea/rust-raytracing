@@ -47,9 +47,9 @@ fn run_terminal(args: Cli) {
 
 fn run_gui() {
     let native_options = eframe::NativeOptions::default();
-    eframe::run_native(
+    let _ = eframe::run_native(
         "Raytracer",
         native_options,
         Box::new(|cc| Box::new(gui::Gui::new(cc))),
-    )
+    );
 }

@@ -37,7 +37,7 @@ impl Gui {
 }
 
 impl eframe::App for Gui {
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, _: &mut eframe::Frame) {
         if self.renderer.is_render_in_progress() {
             ctx.request_repaint();
         } else if let Some(start) = self.render_start_time.take() {
@@ -48,7 +48,7 @@ impl eframe::App for Gui {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.button("Quit").clicked() {
-                        frame.close();
+                        ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                     }
                 })
             })
@@ -68,7 +68,7 @@ impl eframe::App for Gui {
             .frame(frame)
             .show(ctx, |ui| match self.texture.as_ref() {
                 Some(texture) => {
-                    ui.image(texture, texture.size_vec2());
+                    ui.image(texture);
                 }
                 None => {
                     ui.spinner();
